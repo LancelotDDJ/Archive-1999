@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="st-pavlov">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>登录 · 重返未来：1999知识库</title>
+<link rel="icon" href="/assets/emblem.svg" type="image/svg+xml">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700;900&family=Playfair+Display:ital,wght@0,600;0,700;1,500&display=swap">
+<link rel="stylesheet" href="/css/tokens.css">
+<link rel="stylesheet" href="/css/base.css">
+<link rel="stylesheet" href="/css/components.css">
+<link rel="stylesheet" href="/css/pages.css">
+<link rel="stylesheet" href="/css/responsive.css">
+</head>
+<body>
+
+<div id="gate">
+  <div class="leaf l"></div>
+  <div class="leaf r"></div>
+  <div class="mark">
+    <div class="ring"></div>
+    <span>ST. PAVLOV FOUNDATION</span>
+    <div class="gline"></div>
+    <span style="font-size:9px;letter-spacing:.4em;text-indent:.4em;opacity:.7">档案大厅 · 身份核验中</span>
+  </div>
+</div>
+
+<div class="scene">
+  <div class="wall-title">ST. PAVLOV FOUNDATION</div>
+  <div class="crest-watermark">✦</div>
+  <div id="pxFar"></div>
+  <div id="sunshaft"></div>
+  <div class="wainscot"></div>
+  <div class="checker-floor"></div>
+</div>
+
+<div class="login-wrap">
+  <div class="login-card deco-corners">
+    <div class="emblem-row"><img src="/assets/emblem.svg" alt="圣洛夫基金会徽记"></div>
+    <h1>重返未来：1999知识库</h1>
+    <div class="en">Reverse: 1999 · ARCHIVE</div>
+    <div class="diamond-sep"><span class="dm"></span></div>
+
+    <div class="login-tabs">
+      <button id="tabLogin" class="on">登 录</button>
+      <button id="tabRegister">注 册</button>
+    </div>
+
+    <div class="field">
+      <label>用户名 USERNAME</label>
+      <input id="username" autocomplete="username" placeholder="调查员代号">
+    </div>
+    <div class="field" id="displayNameRow" style="display:none">
+      <label>显示名 DISPLAY NAME（可选）</label>
+      <input id="displayName" autocomplete="nickname" placeholder="档案中显示的名字">
+    </div>
+    <div class="field">
+      <label>密码 PASSWORD</label>
+      <input id="password" type="password" autocomplete="current-password" placeholder="••••••••">
+      <div class="hint" id="pwHint" style="display:none">至少 8 位，需同时包含字母与数字</div>
+    </div>
+
+    <button class="btn-main" id="submitBtn">进 入 档 案 馆</button>
+    <div class="login-err" id="err"></div>
+
+    <div class="login-foot">
+      我们寻觅，我们援助，我们教导。<br>
+      RESTRICTED · 内部档案 · 仅限授权调查员
+    </div>
+  </div>
+</div>
+
+<script type="module" src="/js/modules/pages/login.js"></script>
+</body>
+</html>

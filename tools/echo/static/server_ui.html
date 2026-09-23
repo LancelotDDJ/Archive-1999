@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Echo 服务端 · 数据接收与处理</title>
+<style>
+  :root {
+    --bg: #f4f5f7; --panel: #ffffff; --line: #e2e4e8; --line2: #cfd3d9;
+    --text: #24292f; --muted: #6e7781; --green: #1a7f37; --gold: #9c7c42;
+    --blue: #0969da; --red: #cf222e;
+    --mono: ui-monospace, "Cascadia Mono", Consolas, monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  @keyframes page-enter { from { opacity: 0; transform: translateY(8px); } }
+  .wrap > *, .linkbar { animation: page-enter .35s ease both; }
+  .wrap > *:nth-child(2) { animation-delay: .05s; }
+  .wrap > *:nth-child(3) { animation-delay: .1s; }
+  .wrap > *:nth-child(4) { animation-delay: .15s; }
+  .wrap > *:nth-child(n+5) { animation-delay: .2s; }
+  @media (prefers-reduced-motion: reduce) {
+    * { animation-duration: .2s !important; animation-iteration-count: 1 !important;
+        transition-duration: .2s !important; }
+    .dot, header .tag { animation: none !important; }
+  }
+  body { font-family: "Segoe UI", "Microsoft YaHei", sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+  header { background: #1f2328; color: #f0f3f6; padding: 14px 22px; display: flex; align-items: center; gap: 14px; }
+  header .tag { font-size: 11px; letter-spacing: .2em; color: #d4a72c; border: 1px solid #d4a72c66; padding: 2px 10px; border-radius: 3px; }
+  header h1 { font-size: 16px; font-weight: 600; }
+  header .addr { margin-left: auto; font-family: var(--mono); font-size: 12px; color: #9ea7b3; }
+  .wrap { max-width: 1080px; margin: 18px auto; padding: 0 16px; display: flex; flex-direction: column; gap: 14px; }
+  .cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 14px 16px; transition: border-color .2s ease, box-shadow .2s ease; }
+  .card:hover { border-color: var(--gold); box-shadow: 0 2px 10px rgba(156,124,66,.12); }
+  .card .lab { font-size: 11px; color: var(--muted); letter-spacing: .08em; margin-bottom: 6px; }
+  .card .num { font-size: 22px; font-weight: 700; font-family: var(--mono); }
+  .dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; background: var(--green); box-shadow: 0 0 0 3px rgba(26,127,55,.15); animation: pulse 2s infinite; }
+  @keyframes pulse { 50% { box-shadow: 0 0 0 6px rgba(26,127,55,.05); } }
+  .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 6px; }
+  .panel .head { display: flex; align-items: center; gap: 10px; padding: 12px 16px; border-bottom: 1px solid var(--line); }
+  .panel .head h2 { font-size: 13.5px; font-weight: 600; letter-spacing: .04em; }
+  .panel .head .sub { font-size: 11.5px; color: var(--muted); font-family: var(--mono); }
+  .panel .head .right { margin-left: auto; display: flex; gap: 8px; align-items: center; }
+  .pill { font-size: 11px; padding: 2px 10px; border-radius: 999px; border: 1px solid var(--line2); color: var(--muted); }
+  .pill.on { color: var(--green); border-color: #1a7f3755; background: #1a7f370d; }
+  button { font: inherit; font-size: 12px; cursor: pointer; border: 1px solid var(--line2); background: var(--panel); color: var(--text); border-radius: 4px; padding: 5px 12px; transition: all .15s; }
+  button:hover { border-color: var(--blue); color: var(--blue); }
+  button:active { transform: scale(.97); }
+  button.warn:hover { border-color: var(--red); color: var(--red); }
+  table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+  th { text-align: left; font-size: 11px; color: var(--muted); font-weight: 600; padding: 8px 12px; border-bottom: 1px solid var(--line); letter-spacing: .05em; white-space: nowrap; }
+  td { padding: 8px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  tr { transition: background-color .2s ease; }
+  tr:hover td { background: #f6f8fa; }
+  tr.fresh td { animation: fresh 1.2s ease-out; }
+  @keyframes fresh { from { background: #fff8c5; } }
+  td.mono, .mono { font-family: var(--mono); font-size: 11.5px; }
+  .mode-b { display: inline-block; font-size: 10.5px; padding: 1px 8px; border-radius: 999px; background: #ddf4ff; color: var(--blue); border: 1px solid #54aeff66; }
+  .clip { max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .empty { padding: 30px; text-align: center; color: var(--muted); font-size: 13px; }
+  .howto { font-size: 12px; color: var(--muted); line-height: 1.9; padding: 12px 16px; }
+  .howto b { color: var(--text); }
+  .howto code { font-family: var(--mono); background: #f6f8fa; border: 1px solid var(--line); border-radius: 3px; padding: 0 5px; font-size: 11px; }
+</style>
+</head>
+<body>
+<header>
+  <span class="tag">SERVER</span>
+  <h1>Echo 服务端 · 数据接收 / 处理 / 返回</h1>
+  <span class="addr">http://127.0.0.1:8701</span>
+</header>
+
+<div class="wrap">
+  <div class="cards">
+    <div class="card"><div class="lab">服务状态</div><div class="num" style="font-size:14px"><span class="dot"></span> <span style="vertical-align:2px">运行中</span></div></div>
+    <div class="card"><div class="lab">已运行</div><div class="num" id="uptime">—</div></div>
+    <div class="card"><div class="lab">累计处理请求</div><div class="num" id="total">0</div></div>
+    <div class="card"><div class="lab">启动时间</div><div class="num" style="font-size:13px" id="started">—</div></div>
+  </div>
+
+  <div class="panel">
+    <div class="head">
+      <h2>请求台账</h2>
+      <span class="sub" id="lastUpdate">等待数据…</span>
+      <div class="right">
+        <span class="pill on" id="autoPill">自动刷新 · 2s</span>
+        <button id="refreshBtn">立即刷新</button>
+        <button id="pauseBtn">暂停刷新</button>
+        <button id="clearBtn" class="warn">清空台账</button>
+      </div>
+    </div>
+    <div style="overflow-x:auto">
+      <table>
+        <thead><tr>
+          <th>#</th><th>请求 ID</th><th>接收时间</th><th>模式</th><th>原始数据</th><th>处理结果</th><th>耗时</th>
+        </tr></thead>
+        <tbody id="logBody"><tr><td colspan="7" class="empty">暂无请求 —— 请到客户端界面发送数据</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="head"><h2>处理规则说明</h2></div>
+    <div class="howto">
+      <b>echo</b> 原文回显 · <b>upper</b> 转大写 · <b>reverse</b> 字符反转 · <b>stats</b> 结构化统计（字符数 / 有效字符 / 词元数 / 行数 / MD5 摘要）<br>
+      API：<code>POST /api/echo</code>（body: <code>{"message": "...", "mode": "echo|upper|reverse|stats"}</code>）·
+      健康检查 <code>GET /api/health</code> · 台账 <code>GET /api/log</code> · 每次返回含唯一 <code>id</code> 与处理耗时 <code>processing_ms</code>
+    </div>
+  </div>
+</div>
+
+<script>
+const $ = s => document.querySelector(s);
+let auto = true, lastSeq = 0, timer = null;
+
+function fmtUptime(s) {
+  const h = Math.floor(s / 3600), m = Math.floor(s % 3600 / 60), sec = Math.floor(s % 60);
+  return (h ? h + 'h ' : '') + (m ? m + 'm ' : '') + sec + 's';
+}
+function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+function clip(s, n) { s = String(s); return s.length > n ? s.slice(0, n) + '…' : s; }
+
+async function refresh() {
+  try {
+    const [h, l] = await Promise.all([
+      fetch('/api/health').then(r => r.json()),
+      fetch('/api/log?limit=50').then(r => r.json()),
+    ]);
+    $('#uptime').textContent = fmtUptime(h.uptime_s || 0);
+    $('#total').textContent = h.total_processed ?? 0;
+    $('#started').textContent = (h.started_at || '—').replace('T', ' ');
+    const items = l.items || [];
+    $('#lastUpdate').textContent = '最近更新 ' + new Date().toLocaleTimeString('zh-CN', { hour12: false });
+    if (!items.length) {
+      $('#logBody').innerHTML = '<tr><td colspan="7" class="empty">暂无请求 —— 请到客户端界面发送数据</td></tr>';
+      return;
+    }
+    $('#logBody').innerHTML = items.map(it => {
+      const fresh = it.seq > lastSeq ? ' class="fresh"' : '';
+      const result = typeof it.result === 'object'
+        ? '<span class="mono">' + esc(JSON.stringify(it.result)) + '</span>'
+        : esc(it.result);
+      return `<tr${fresh}>
+        <td class="mono">${it.seq}</td>
+        <td class="mono">${esc(it.id)}</td>
+        <td class="mono">${esc((it.received_at || '').replace('T', ' ').slice(0, 23))}</td>
+        <td><span class="mode-b">${esc(it.mode)}</span></td>
+        <td class="clip" title="${esc(it.original)}">${esc(clip(it.original, 60))}</td>
+        <td class="clip" title="${esc(typeof it.result === 'object' ? JSON.stringify(it.result) : it.result)}">${result}</td>
+        <td class="mono">${it.processing_ms} ms</td>
+      </tr>`;
+    }).join('');
+    lastSeq = items[0]?.seq || 0;
+  } catch (e) { /* 刷新失败不打断页面 */ }
+}
+
+$('#refreshBtn').addEventListener('click', refresh);
+$('#clearBtn').addEventListener('click', async () => {
+  await fetch('/api/log/clear', { method: 'POST' });
+  lastSeq = 0; refresh();
+});
+$('#pauseBtn').addEventListener('click', () => {
+  auto = !auto;
+  $('#pauseBtn').textContent = auto ? '暂停刷新' : '恢复刷新';
+  $('#autoPill').classList.toggle('on', auto);
+  $('#autoPill').textContent = auto ? '自动刷新 · 2s' : '刷新已暂停';
+});
+timer = setInterval(() => { if (auto) refresh(); }, 2000);
+refresh();
+</script>
+</body>
+</html>

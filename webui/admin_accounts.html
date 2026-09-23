@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="st-pavlov">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>账户管理 · 重返未来：1999知识库</title>
+<link rel="icon" href="/assets/emblem.svg" type="image/svg+xml">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700;900&family=Playfair+Display:ital,wght@0,600;0,700;1,500&display=swap">
+<link rel="stylesheet" href="/css/tokens.css">
+<link rel="stylesheet" href="/css/base.css">
+<link rel="stylesheet" href="/css/components.css">
+<link rel="stylesheet" href="/css/pages.css">
+<link rel="stylesheet" href="/css/responsive.css">
+<style>
+  /* 账户管理专属（列表 + 详情双视图） */
+  .toolbar { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  .toolbar input[type="search"] {
+    flex: 1; min-width: 200px; border: 1px solid var(--line2); border-radius: 2px;
+    padding: 8px 12px; font: 13px var(--font-serif); color: var(--text); background: var(--panel2);
+    outline: none; transition: border-color .15s, box-shadow .15s;
+  }
+  .toolbar input[type="search"]:focus { border-color: var(--gold-dim); box-shadow: 0 0 0 3px rgba(156,124,66,.12); }
+  .rowbtn { cursor: pointer; border: 1px solid var(--gold-dim); color: var(--gold); background: transparent;
+    border-radius: 2px; padding: 4px 12px; font-size: 12px; font-family: var(--font-serif); transition: all .15s; }
+  .rowbtn:hover { background: rgba(156,124,66,.1); }
+  tr.rowlink { cursor: pointer; }
+  .pager { display: flex; align-items: center; gap: 10px; padding: 12px 16px; font-size: 12.5px; color: var(--muted); }
+  .pager .info { font-family: var(--mono); }
+  .pager .btns { margin-left: auto; display: flex; gap: 8px; }
+
+  /* 详情视图 */
+  .back { display: inline-flex; align-items: center; gap: 6px; cursor: pointer; border: 1px solid var(--line);
+    background: transparent; color: var(--muted); border-radius: 2px; padding: 6px 14px;
+    font-size: 12.5px; font-family: var(--font-serif); transition: all .15s; margin-bottom: 14px; }
+  .back:hover { color: var(--gold); border-color: var(--gold-dim); }
+  .info-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px 24px; }
+  .info-grid .item { border: 1px solid var(--line); border-radius: 2px; padding: 9px 12px; background: var(--panel2); }
+  .info-grid .item .k { font-size: 11px; color: var(--muted); letter-spacing: .1em; margin-bottom: 3px; }
+  .info-grid .item .v { font-size: 13.5px; color: var(--text); word-break: break-all; font-family: var(--font-mono); }
+  .pw-box { border: 1px dashed var(--gold-dim); border-radius: 2px; padding: 12px 14px; margin-top: 12px; background: color-mix(in srgb, var(--gold) 4%, transparent); }
+  .pw-box .k { font-size: 11px; color: var(--muted); letter-spacing: .1em; margin-bottom: 6px; }
+  .pw-box .hash { font-family: var(--mono); font-size: 11.5px; color: var(--text); word-break: break-all; line-height: 1.7; }
+  .pw-box .note { font-size: 11.5px; color: var(--muted); margin-top: 8px; line-height: 1.7; }
+  .pw-box .note b { color: var(--ink-stamp); }
+
+  /* 聊天时间线 */
+  .chat-filter { display: flex; gap: 10px; align-items: center; margin-bottom: 12px; flex-wrap: wrap; }
+  .chat-filter select { border: 1px solid var(--line2); background: var(--panel2); color: var(--text);
+    border-radius: 2px; padding: 7px 10px; font: 12.5px var(--font-serif); outline: none; max-width: 320px; }
+  .bubble { border: 1px solid var(--line); border-radius: 2px; padding: 10px 14px; margin: 10px 0;
+    background: var(--panel2); position: relative; }
+  .bubble.user { border-left: 3px solid var(--gold); }
+  .bubble.assistant { border-left: 3px solid var(--soul); }
+  .bubble .meta { display: flex; gap: 10px; align-items: baseline; font-size: 11px; color: var(--muted);
+    font-family: var(--mono); margin-bottom: 6px; flex-wrap: wrap; }
+  .bubble .meta .who { font-weight: 700; font-size: 12px; letter-spacing: .08em; }
+  .bubble.user .meta .who { color: var(--gold); }
+  .bubble.assistant .meta .who { color: var(--soul); }
+  .bubble .meta .conv { border: 1px solid var(--line); border-radius: 999px; padding: 0 8px; }
+  .bubble { animation: item-in .3s var(--ease-out) both; }
+  .bubble .content { font-size: 13.5px; line-height: 1.85; color: var(--text); white-space: pre-wrap; word-break: break-word; }
+  .bubble .content.folded { max-height: 220px; overflow: hidden; }
+  .bubble .more { margin-top: 6px; font-size: 11px; color: var(--blue); cursor: pointer; user-select: none; }
+  .day-sep { text-align: center; color: var(--muted); font-size: 11.5px; font-family: var(--mono);
+    margin: 14px 0 6px; display: flex; align-items: center; gap: 10px; }
+  .day-sep::before, .day-sep::after { content: ""; flex: 1; height: 1px; background: var(--line); }
+</style>
+</head>
+<body>
+
+<div id="gate">
+  <div class="leaf l"></div>
+  <div class="leaf r"></div>
+  <div class="mark">
+    <div class="ring"></div>
+    <span>ST. PAVLOV FOUNDATION</span>
+    <div class="gline"></div>
+  </div>
+</div>
+
+<div class="page-wrap">
+  <header class="page-top">
+    <div class="brand-mini">
+      <img src="/assets/emblem.svg" alt="徽记">
+      <div>
+        <h1>账户管理</h1>
+        <div class="en">ACCOUNT ARCHIVE</div>
+      </div>
+    </div>
+    <div class="spacer"></div>
+    <nav>
+      <a href="/">问答大厅</a>
+      <a href="/admin">后台总览</a>
+      <a href="/admin/accounts" class="here">账户管理</a>
+    </nav>
+  </header>
+
+  <div class="page-body">
+    <div class="admin-grid" id="viewList">
+      <div class="panel">
+        <h3>◈ 账户列表（共 <span id="accTotal">…</span> 个账户）</h3>
+        <div class="toolbar">
+          <input type="search" id="searchBox" placeholder="搜索用户名 / 显示名…">
+          <select id="pageSize" title="每页条数">
+            <option value="10">10 条/页</option>
+            <option value="20" selected>20 条/页</option>
+            <option value="50">50 条/页</option>
+          </select>
+          <button class="rowbtn" id="searchBtn">搜 索</button>
+        </div>
+        <div class="table-scroll" style="margin-top:12px">
+        <table class="table">
+          <thead><tr>
+            <th>ID</th><th>用户名</th><th>显示名</th><th>角色</th><th>状态</th>
+            <th>会话</th><th>消息</th><th>提问</th><th>注册时间</th><th>最近登录</th><th>操作</th>
+          </tr></thead>
+          <tbody id="accBody"></tbody>
+        </table>
+        </div>
+        <div class="pager">
+          <span class="info" id="pageInfo">—</span>
+          <div class="btns">
+            <button id="prevBtn">← 上一页</button>
+            <button id="nextBtn">下一页 →</button>
+          </div>
+        </div>
+        <div class="foot-note">点击任意账户行进入详情页，查看完整注册信息与全部聊天数据。</div>
+      </div>
+    </div>
+
+    <div class="admin-grid" id="viewDetail" style="display:none">
+      <div class="panel">
+        <button class="back" id="backBtn">← 返回账户列表</button>
+        <h3>◈ 账户详情 · <span id="dTitle">…</span></h3>
+        <div class="info-grid" id="dInfo"></div>
+        <div class="pw-box">
+          <div class="k">密码（存储形态：PBKDF2-SHA256 单向哈希）</div>
+          <div class="hash" id="dHash">…</div>
+          <div class="note" id="dHashNote"></div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h3>◈ 聊天数据（时间正序 · 共 <span id="cTotal">0</span> 条消息）</h3>
+        <div class="chat-filter">
+          <select id="convFilter"><option value="">全部会话</option></select>
+          <span class="hint" id="cPageInfo"></span>
+          <div style="margin-left:auto;display:flex;gap:8px">
+            <button id="cPrev">← 上一页</button>
+            <button id="cNext">下一页 →</button>
+          </div>
+        </div>
+        <div id="chatList"><div class="empty" style="padding:24px;text-align:center;color:var(--muted);font-size:12.5px">该账户暂无聊天数据</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="module" src="/js/modules/pages/admin_accounts.js"></script>
+</body>
+</html>

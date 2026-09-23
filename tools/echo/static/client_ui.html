@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Echo 客户端 · 发送请求与结果展示</title>
+<style>
+  :root {
+    --bg: #f4f5f7; --panel: #ffffff; --line: #e2e4e8; --line2: #cfd3d9;
+    --text: #24292f; --muted: #6e7781; --green: #1a7f37; --gold: #9c7c42;
+    --blue: #0969da; --red: #cf222e; --amber: #9a6700;
+    --mono: ui-monospace, "Cascadia Mono", Consolas, monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  @keyframes page-enter { from { opacity: 0; transform: translateY(8px); } }
+  .wrap > *, .linkbar { animation: page-enter .35s ease both; }
+  .wrap > *:nth-child(2) { animation-delay: .05s; }
+  .wrap > *:nth-child(3) { animation-delay: .1s; }
+  .wrap > *:nth-child(4) { animation-delay: .15s; }
+  .wrap > *:nth-child(n+5) { animation-delay: .2s; }
+  @media (prefers-reduced-motion: reduce) {
+    * { animation-duration: .2s !important; animation-iteration-count: 1 !important;
+        transition-duration: .2s !important; }
+    .dot, header .tag { animation: none !important; }
+  }
+  body { font-family: "Segoe UI", "Microsoft YaHei", sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+  header { background: #1f2328; color: #f0f3f6; padding: 14px 22px; display: flex; align-items: center; gap: 14px; }
+  header .tag { font-size: 11px; letter-spacing: .2em; color: #d4a72c; border: 1px solid #d4a72c66; padding: 2px 10px; border-radius: 3px; }
+  header h1 { font-size: 16px; font-weight: 600; }
+  header .addr { margin-left: auto; font-family: var(--mono); font-size: 12px; color: #9ea7b3; }
+  .wrap { max-width: 860px; margin: 18px auto; padding: 0 16px; display: flex; flex-direction: column; gap: 14px; }
+
+  .linkbar { background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 12px 16px; display: flex; align-items: center; gap: 12px; }
+  .linkbar .flow { font-family: var(--mono); font-size: 12px; color: var(--muted); }
+  .linkbar .flow b { color: var(--text); font-weight: 600; }
+  .pill { margin-left: auto; display: inline-flex; align-items: center; gap: 7px; font-size: 12px; padding: 4px 12px; border-radius: 999px; border: 1px solid var(--line2); color: var(--muted); font-weight: 600; }
+  .pill .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--muted); }
+  .pill.ok { color: var(--green); border-color: #1a7f3755; background: #1a7f370d; }
+  .pill.ok .dot { background: var(--green); animation: pulse 2s infinite; }
+  .pill.bad { color: var(--red); border-color: #cf222e55; background: #cf222e0d; }
+  .pill.bad .dot { background: var(--red); }
+  @keyframes pulse { 50% { box-shadow: 0 0 0 5px rgba(26,127,55,.12); } }
+
+  .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 6px; }
+  .panel .head { display: flex; align-items: center; gap: 10px; padding: 12px 16px; border-bottom: 1px solid var(--line); }
+  .panel .head h2 { font-size: 13.5px; font-weight: 600; letter-spacing: .04em; }
+  .panel .body { padding: 16px; }
+  textarea {
+    width: 100%; min-height: 88px; resize: vertical; border: 1px solid var(--line2); border-radius: 6px;
+    padding: 10px 12px; font: 13.5px/1.7 "Segoe UI", "Microsoft YaHei", sans-serif; color: var(--text);
+    outline: none; transition: border-color .15s, box-shadow .15s;
+  }
+  textarea:focus { border-color: var(--blue); box-shadow: 0 0 0 3px #0969da1a; }
+  textarea.err { border-color: var(--red); box-shadow: 0 0 0 3px #cf222e1a; }
+  .row { display: flex; gap: 10px; margin-top: 12px; align-items: center; flex-wrap: wrap; }
+  select { font: inherit; font-size: 13px; padding: 8px 12px; border: 1px solid var(--line2); border-radius: 6px; background: var(--panel); color: var(--text); outline: none; }
+  #sendBtn {
+    margin-left: auto; font: inherit; font-size: 14px; font-weight: 600; letter-spacing: .1em;
+    background: #1f883d; color: #fff; border: none; border-radius: 6px; padding: 9px 26px; cursor: pointer;
+    transition: background .15s, transform .12s;
+  }
+  #sendBtn:hover:not(:disabled) { background: #1a7f37; }
+  #sendBtn:active:not(:disabled) { transform: scale(.97); }
+  #sendBtn:disabled { opacity: .55; cursor: wait; }
+  .hint { font-size: 11.5px; color: var(--muted); }
+  .hint.err { color: var(--red); }
+
+  .status { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-radius: 6px; font-size: 13px; border: 1px solid transparent; }
+  .status.idle { display: none; }
+  .status.sending { background: #fff8c5; border-color: #d4a72c66; color: var(--amber); }
+  .status.ok { background: #dafbe1; border-color: #1a7f3755; color: var(--green); }
+  .status.fail { background: #ffebe9; border-color: #cf222e55; color: var(--red); }
+  .status .lat { margin-left: auto; font-family: var(--mono); font-size: 12px; }
+
+  pre.resp {
+    background: #f6f8fa; border: 1px solid var(--line); border-radius: 6px; padding: 12px 14px;
+    font-family: var(--mono); font-size: 12px; line-height: 1.75; overflow-x: auto; white-space: pre-wrap; word-break: break-all;
+    max-height: 300px; overflow-y: auto;
+  }
+  pre.resp .k { color: #0550ae; }
+  pre.resp .s { color: #0a3069; }
+  pre.resp .n { color: #953800; }
+  pre.resp .b { color: #cf222e; }
+
+  .hist { display: flex; flex-direction: column; }
+  .hist-item { display: flex; gap: 10px; align-items: center; padding: 8px 16px; border-bottom: 1px solid var(--line); font-size: 12.5px; cursor: pointer; transition: background .2s ease; animation: page-enter .3s ease both; }
+  .hist-item:hover { background: #f6f8fa; }
+  .hist-item .t { font-family: var(--mono); color: var(--muted); font-size: 11.5px; }
+  .hist-item .m { font-size: 10.5px; padding: 1px 8px; border-radius: 999px; background: #ddf4ff; color: var(--blue); border: 1px solid #54aeff66; }
+  .hist-item .msg { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .hist-item .st { font-weight: 600; }
+  .hist-item .st.ok { color: var(--green); }
+  .hist-item .st.fail { color: var(--red); }
+  .hist-item .lat { font-family: var(--mono); color: var(--muted); }
+  .empty { padding: 24px; text-align: center; color: var(--muted); font-size: 12.5px; }
+</style>
+</head>
+<body>
+<header>
+  <span class="tag">CLIENT</span>
+  <h1>Echo 客户端 · 发送请求 / 展示结果</h1>
+  <span class="addr">http://127.0.0.1:8702</span>
+</header>
+
+<div class="wrap">
+  <div class="linkbar">
+    <span class="flow"><b>浏览器</b> → <b>客户端服务 :8702</b> → <b>服务端 :8701</b></span>
+    <span class="pill" id="linkPill"><span class="dot"></span><span id="linkText">检测链路中…</span></span>
+  </div>
+
+  <div class="panel">
+    <div class="head"><h2>发送数据</h2></div>
+    <div class="body">
+      <textarea id="msg" placeholder="输入要发送到服务端的数据…（默认示例可直接发送）">你好，Echo 服务端！Hello Archive 1999。</textarea>
+      <div class="row">
+        <select id="mode">
+          <option value="echo">echo · 原文回显</option>
+          <option value="upper">upper · 转大写</option>
+          <option value="reverse">reverse · 字符反转</option>
+          <option value="stats">stats · 统计分析</option>
+        </select>
+        <span class="hint" id="valHint">Ctrl + Enter 快捷发送</span>
+        <button id="sendBtn">发 送</button>
+      </div>
+      <div class="row">
+        <div class="status idle" id="status"><span id="statusText"></span><span class="lat" id="statusLat"></span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="head"><h2>服务端返回结果</h2><span class="hint" style="margin-left:auto" id="respMeta"></span></div>
+    <div class="body">
+      <pre class="resp" id="resp">// 尚无返回结果 —— 发送数据后此处将展示服务端完整响应</pre>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="head">
+      <h2>发送历史</h2>
+      <button style="margin-left:auto" id="clearHist">清空</button>
+    </div>
+    <div class="hist" id="hist"><div class="empty">暂无发送记录</div></div>
+  </div>
+</div>
+
+<script>
+const $ = s => document.querySelector(s);
+const S = { history: [], seq: 0 };
+
+/* ---------- 链路健康轮询（3s） ---------- */
+async function pollHealth() {
+  const pill = $('#linkPill'), txt = $('#linkText');
+  try {
+    const r = await fetch('/api/health', { signal: AbortSignal.timeout(3500) });
+    const d = await r.json();
+    if (d.link_ok) {
+      pill.className = 'pill ok';
+      txt.textContent = `链路正常 · 服务端已运行 ${Math.floor(d.server.uptime_s || 0)}s · 累计处理 ${d.server.total_processed ?? 0} 条`;
+    } else { throw new Error('server down'); }
+  } catch (e) {
+    pill.className = 'pill bad';
+    txt.textContent = '链路异常 —— 服务端 :8701 不可达';
+  }
+}
+setInterval(pollHealth, 3000);
+pollHealth();
+
+/* ---------- 发送 ---------- */
+function setStatus(kind, text, lat) {
+  const st = $('#status');
+  st.className = 'status ' + kind;
+  $('#statusText').textContent = text;
+  $('#statusLat').textContent = lat || '';
+}
+
+function renderResp(d) {
+  const color = (v, depth) => {
+    if (typeof v === 'string') return `<span class="s">"${esc(v)}"</span>`;
+    if (typeof v === 'number') return `<span class="n">${v}</span>`;
+    if (typeof v === 'boolean') return `<span class="b">${v}</span>`;
+    if (v === null) return 'null';
+    if (Array.isArray(v)) return '[' + v.map(x => color(x, depth + 1)).join(', ') + ']';
+    const pad = '  '.repeat(depth + 1), end = '  '.repeat(depth);
+    const inner = Object.entries(v).map(([k2, v2]) =>
+      `${pad}<span class="k">"${esc(k2)}"</span>: ${color(v2, depth + 1)}`).join(',\n');
+    return `{\n${inner}\n${end}}`;
+  };
+  $('#resp').innerHTML = color(d, 0);
+  $('#respMeta').textContent = d.ok
+    ? `请求 ${d.id} · 服务端处理 ${d.processing_ms}ms · 链路 ${d.link?.client_latency_ms}ms`
+    : '请求失败';
+}
+
+function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+
+async function send() {
+  const msg = $('#msg').value;
+  if (!msg.trim()) {
+    $('#msg').classList.add('err');
+    $('#valHint').textContent = '内容不能为空';
+    $('#valHint').className = 'hint err';
+    setTimeout(() => { $('#msg').classList.remove('err'); $('#valHint').textContent = 'Ctrl + Enter 快捷发送'; $('#valHint').className = 'hint'; }, 1600);
+    return;
+  }
+  const mode = $('#mode').value;
+  $('#sendBtn').disabled = true;
+  $('#sendBtn').textContent = '发送中…';
+  setStatus('sending', '正在发送数据到 服务端 :8701 …');
+  const t0 = performance.now();
+  try {
+    const r = await fetch('/api/send', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: msg, mode }),
+    });
+    const d = await r.json();
+    const wall = Math.round(performance.now() - t0);
+    renderResp(d);
+    if (d.ok) {
+      setStatus('ok', `✓ 发送并接收成功 —— 数据已完成「浏览器 → 客户端 :8702 → 服务端 :8701」全链路往返`,
+        `往返 ${wall}ms · 服务端处理 ${d.processing_ms}ms`);
+    } else {
+      setStatus('fail', `✗ ${d.error || '请求失败'}`, `往返 ${wall}ms`);
+    }
+    pushHist({ time: new Date().toLocaleTimeString('zh-CN', { hour12: false }), mode, msg, ok: !!d.ok, wall, data: d });
+  } catch (e) {
+    setStatus('fail', '✗ 客户端服务不可达（:8702）', '');
+    renderResp({ ok: false, error: String(e) });
+  } finally {
+    $('#sendBtn').disabled = false;
+    $('#sendBtn').textContent = '发 送';
+  }
+}
+
+function pushHist(item) {
+  S.history.unshift(item);
+  S.history = S.history.slice(0, 20);
+  renderHist();
+}
+
+function renderHist() {
+  const box = $('#hist');
+  if (!S.history.length) { box.innerHTML = '<div class="empty">暂无发送记录</div>'; return; }
+  box.innerHTML = '';
+  S.history.forEach((it, i) => {
+    const d = document.createElement('div');
+    d.className = 'hist-item';
+    d.innerHTML = `<span class="t">${it.time}</span><span class="m">${esc(it.mode)}</span>
+      <span class="msg" title="${esc(it.msg)}">${esc(it.msg)}</span>
+      <span class="st ${it.ok ? 'ok' : 'fail'}">${it.ok ? '成功' : '失败'}</span>
+      <span class="lat">${it.wall}ms</span>`;
+    d.addEventListener('click', () => { renderResp(it.data); setStatus(it.ok ? 'ok' : 'fail', it.ok ? '✓ 已切换到该条历史记录的返回结果' : '✗ 该条记录请求失败', `往返 ${it.wall}ms`); });
+    box.appendChild(d);
+  });
+}
+
+$('#sendBtn').addEventListener('click', send);
+$('#msg').addEventListener('keydown', e => { if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) send(); });
+$('#clearHist').addEventListener('click', () => { S.history = []; renderHist(); });
+</script>
+</body>
+</html>

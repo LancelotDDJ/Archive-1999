@@ -1,0 +1,12 @@
+{
+  "llm": {
+    "provider": "auto",
+    "base_url": "https://api.deepseek.com",
+    "api_key": "在此填入你的 API Key",
+    "model": "deepseek-chat",
+    "max_tokens": 10000,
+    "temperature": 0.25
+  },
+  "server": { "host": "127.0.0.1", "port": 8765 },
+  "kb": { "auto_update_enabled": true, "auto_update_day": 1, "auto_update_hour": 3 }
+}

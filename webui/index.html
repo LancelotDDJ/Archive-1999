@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="st-pavlov">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>重返未来：1999知识库</title>
+<link rel="icon" href="/assets/emblem.svg" type="image/svg+xml">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700;900&family=Playfair+Display:ital,wght@0,600;0,700;1,500&display=swap">
+<link rel="stylesheet" href="/css/tokens.css">
+<link rel="stylesheet" href="/css/base.css">
+<link rel="stylesheet" href="/css/layout.css">
+<link rel="stylesheet" href="/css/components.css">
+<link rel="stylesheet" href="/css/chat.css">
+<link rel="stylesheet" href="/css/pages.css">
+<link rel="stylesheet" href="/css/responsive.css">
+</head>
+<body>
+
+<div id="gate">
+  <div class="leaf l"></div>
+  <div class="leaf r"></div>
+  <div class="mark">
+    <div class="ring"></div>
+    <span>ST. PAVLOV FOUNDATION</span>
+    <div class="gline"></div>
+    <span style="font-size:9px;letter-spacing:.4em;text-indent:.4em;opacity:.7">档案大厅 · L-01 · 开启中</span>
+  </div>
+</div>
+
+<div class="scene">
+  <div class="wall-title">ST. PAVLOV FOUNDATION</div>
+  <div class="crest-watermark">✦</div>
+  <div id="pxFar"></div>
+  <div id="sunshaft"></div>
+  <div class="wainscot"></div>
+  <div class="checker-floor"></div>
+</div>
+
+<div class="app">
+  <aside id="sidebar">
+    <div class="side-head">
+      <button id="emblem-btn" aria-label="基金会徽记：三连击查看致谢">
+        <img src="/assets/emblem.svg" alt="圣洛夫基金会徽记">
+      </button>
+      <div class="rivets">◆ ◆ ◆ ◆ ◆</div>
+      <div class="brand"><span class="num">ST. PAVLOV</span></div>
+      <div class="brand-sub">FOUNDATION · 档案索引</div>
+      <button id="newChat">＋ 新 对 话</button>
+    </div>
+    <nav id="sessionList"></nav>
+    <div class="side-foot">
+      <div class="side-user">
+        <div class="avatar-dot">✦</div>
+        <div class="who" id="sideUserWho">
+          <div class="n">…</div>
+          <div class="r">调查员</div>
+        </div>
+      </div>
+      <a href="/admin" id="adminNavItem" style="display:none">管理后台</a>
+      <button id="introBtn">◈ 项目简介</button>
+      <button id="settingsBtn">⚙ 界面设置</button>
+      <button id="logoutBtn">⏻ 退出登录</button>
+      <div class="lab" style="margin-top:10px">◈ 圣洛夫基金会 · 官方制式</div>
+    </div>
+  </aside>
+
+  <div id="main">
+    <header id="topbar">
+      <button id="foldBtn" title="折叠/展开侧栏">☰</button>
+      <span class="head-note" id="headNote">档案大厅 · L-01</span>
+      <div class="brand-center">
+        <div class="crest">✦</div>
+        <div class="t1">重返未来：1999知识库</div>
+        <div class="t2">ST. PAVLOV FOUNDATION</div>
+      </div>
+      <div class="head-right">
+        <span id="convTitle"></span>
+      </div>
+    </header>
+
+    <div id="chatWrap">
+      <div id="bgCine">
+        <video id="bgVideo" src="/assets/video/4K60Hz.mp4" muted loop autoplay playsinline></video>
+        <div id="bgLight"></div>
+        <div id="bgVignette"></div>
+      </div>
+      <div id="chat">
+        <div class="inner" id="chatInner"></div>
+      </div>
+    </div>
+
+    <footer id="composer">
+      <div class="inner">
+        <div class="inputrow">
+          <input id="q" placeholder="" autocomplete="off">
+          <button id="send">提 问</button>
+        </div>
+        <div class="ctrlrow">
+          <button id="agentBtn" title="开启后：统计/盘点/列举类问题走 Agent 深度分析（多轮工具调用，耗时较长但可全库汇总）">Agent 深度分析</button>
+          <button id="simBtn" title="剧情推演模式：输入假设主题，Agent 全库收集后多角色推演出剧情走向">剧情推演</button>
+        </div>
+      </div>
+    </footer>
+  </div>
+</div>
+
+<div id="scrim"></div>
+
+<div id="modal">
+  <div class="sheet">
+    <h2>背景视频设置</h2>
+    <div class="field">
+      <label>播放模式 PLAYBACK</label>
+      <div class="vm-seg" id="vmModal">
+        <button data-vm="1x">1×（60 秒循环）</button>
+        <button data-vm="2x">2×（30 秒循环）</button>
+        <button data-vm="sync">同步真实时间</button>
+      </div>
+      <div class="hint">「同步真实时间」：背景定格在与当前时刻对应的一帧画面（视频全程映射一天 24 小时），随时间推移每分钟自动切换帧。</div>
+    </div>
+    <div class="row">
+      <button class="btn-main" id="modalClose">完成</button>
+    </div>
+  </div>
+</div>
+
+<div id="thanks">
+  <div class="t-sheet">
+    <button class="t-close" id="thanksClose" title="关闭 (Esc)">✕</button>
+    <div class="t-crest">✦ ✦ ✦</div>
+    <h2>致 谢</h2>
+    <p class="t-body">
+      感谢您使用这份时序档案与知识库。<br>
+      愿每一次检索都有回响，每一次推演都有回声。<br>
+      三连徽记，灯就会再亮一次。
+    </p>
+    <div class="diamond-sep" style="max-width:200px;margin:14px auto"><span class="dm"></span></div>
+    <p class="t-oath">May the peace be with us</p>
+  </div>
+
+  <div class="t-sheet t-credit">
+    <div class="t-credit-title">特 别 鸣 谢</div>
+    <div class="t-credit-box">
+      <span class="t-credit-item">
+        <svg class="bili-icon" viewBox="0 0 24 24" aria-label="bilibili"><path d="M7.2 1.6a.9.9 0 0 1 1.2-.1l.1.1L12 5l3.4-3.4a.9.9 0 0 1 1.3 1.3L14.4 5H18a4 4 0 0 1 4 4v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V9a4 4 0 0 1 4-4h3.5L7.1 2.9a.9.9 0 0 1 0-1.3z"/></svg><i class="bili-sep">-</i>Unique青鸟
+      </span>
+      <span class="t-credit-item">
+        <svg class="bili-icon" viewBox="0 0 24 24" aria-label="bilibili"><path d="M7.2 1.6a.9.9 0 0 1 1.2-.1l.1.1L12 5l3.4-3.4a.9.9 0 0 1 1.3 1.3L14.4 5H18a4 4 0 0 1 4 4v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V9a4 4 0 0 1 4-4h3.5L7.1 2.9a.9.9 0 0 1 0-1.3z"/></svg><i class="bili-sep">-</i>晴梨AJ
+      </span>
+    </div>
+    <div class="t-credit-sign">
+      <svg class="bili-icon" viewBox="0 0 24 24" aria-label="bilibili"><path d="M7.2 1.6a.9.9 0 0 1 1.2-.1l.1.1L12 5l3.4-3.4a.9.9 0 0 1 1.3 1.3L14.4 5H18a4 4 0 0 1 4 4v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V9a4 4 0 0 1 4-4h3.5L7.1 2.9a.9.9 0 0 1 0-1.3z"/></svg><i class="bili-sep">-</i>LancelotDDJ · 个人开发
+    </div>
+  </div>
+</div>
+
+<script type="module" src="/js/modules/pages/chat.js"></script>
+
+<div id="intro">
+  <div class="i-sheet">
+    <button class="i-close" id="introClose" title="关闭 (Esc)">✕</button>
+    <div class="t-crest">✦ ✦ ✦</div>
+    <h2>项 目 简 介</h2>
+    <div class="intro-body">
+      <p>
+        本项目完全由个人独立完成——从数据抓取、检索引擎、Agent 编排到界面设计，
+        均出自一人之手。它是纯粹出于对《重返未来：1999》的热爱而制作的<b>公益项目</b>，
+        不为盈利，只愿每位司辰都能在这里找到想要的答案。
+      </p>
+      <p>
+        所有项目文件均已开源并上传至 GitHub，欢迎自行部署、试验或二次创作：
+        <a href="https://github.com/LancelotDDJ/Archive-1999" target="_blank" rel="noopener">
+          github.com/LancelotDDJ/Archive-1999</a>。
+        若它对你有所帮助，请前往仓库点一颗 <b>Star</b> ⭐——
+        这对我这样初出茅庐的开发者而言，是无比珍贵的鼓励。
+      </p>
+      <p>
+        这也是我第一个真正上线的个人项目。它难免稚嫩，或许仍有考虑不周之处，
+        恳请大家多多指正、提出宝贵意见。每一次反馈，都会让这座小小的档案馆变得更好。
+      </p>
+    </div>
+    <div class="intro-src">
+      数据来源：<a href="https://res1999.huijiwiki.com/wiki/%E9%A6%96%E9%A1%B5" target="_blank" rel="noopener">重返未来：1999 中文维基</a>
+      ——本项目的全部资料均整理自该维基社区，谨向每一位编辑者致谢。
+    </div>
+  </div>
+</div>
+</body>
+</html>

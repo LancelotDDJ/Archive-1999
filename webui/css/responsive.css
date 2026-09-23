@@ -1,0 +1,91 @@
+/* ==========================================================================
+   响应式层：≤1200 收紧 / ≤900 侧栏抽屉化（对齐原版 900px 断点）/ 矮屏
+   ========================================================================== */
+
+@media (max-width: 1200px) {
+  #chat .inner, #composer .inner { padding-left: 18px; padding-right: 18px; }
+  .brand-center .t1 { font-size: 14px; }
+}
+
+@media (max-width: 900px) {
+  /* 侧栏抽屉化(对齐原版 900px 断点) */
+  #sidebar {
+    position: fixed; left: 0; top: 0; bottom: 0; z-index: 40;
+    height: 100dvh;
+    transform: translateX(-104%);
+    margin-left: 0 !important;
+    box-shadow: 12px 0 40px rgba(0,0,0,.4);
+  }
+  #sidebar.drawer-open { transform: translateX(0); }
+  #sidebar.collapsed { margin-left: 0; }
+  #foldBtn { min-width: 40px; min-height: 36px; }
+  #scrim.show { display: block; }
+
+  /* 顶栏精简 */
+  #topbar { padding: 10px 12px 12px; gap: 8px; }
+  .brand-center { position: static; transform: none; text-align: left; flex: 1; min-width: 0; }
+  .brand-center .t1 { font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .brand-center .t2 { display: none; }
+  .brand-center .crest { display: none; }
+  .head-note, #convTitle { display: none; }
+  .chip { font-size: 10px; padding: 2px 7px; }
+
+  /* 场景层降级（性能与可读性） */
+  .wall-title { font-size: 30px; top: 9vh; }
+  .checker-floor { opacity: .5; }
+  #sunshaft { left: 5%; width: 80vw; }
+
+  /* 消息 */
+  #chat .inner { padding: 16px 12px 12px; gap: 14px; }
+  .msg.user { max-width: 92%; }
+  .msg.bot { padding: 12px 14px 12px 16px; }
+  .streaming-wrap { gap: 10px; }
+  .avatar-wrap { width: 84px; }
+
+  /* 输入区：触控友好 + 键盘适配 */
+  #composer { padding: 10px 0 calc(12px + env(safe-area-inset-bottom)); }
+  #composer .inner { padding: 0 12px; }
+  #q { font-size: 16px; padding: 11px 13px; }  /* 16px 防 iOS 自动缩放 */
+  #send { padding: 0 16px; letter-spacing: .12em; }
+  .ctrlrow { gap: 8px; }
+  #agentBtn, #simBtn { min-height: 36px; }
+
+  /* 欢迎页 */
+  #welcome { padding: 26px 18px 24px; margin-top: 2vh; }
+  #welcome .modes { flex-direction: column; }
+  #welcome .mode-card { min-width: 0; }
+  #welcome .restricted-stamp { display: none; }
+  #welcome .vtext { display: none; }
+  #welcome .title { font-size: 27px; }
+  #welcome .oath { font-size: 16px; letter-spacing: .2em; }
+
+  /* 弹窗 */
+  #modal .sheet { padding: 18px 16px; max-height: 92dvh; }
+
+  /* 登录 */
+  .login-card { padding: 30px 22px 26px; }
+
+  /* 后台 */
+  .page-body { padding: 14px 12px; }
+  .page-body .grid { gap: 12px; }
+  .col-3, .col-4 { grid-column: span 12; }
+  .col-6, .col-8 { grid-column: span 12; }
+  .chart-box { height: 260px; }
+  .chart-box.tall { height: 320px; }
+  .page-top { padding: 10px 12px; flex-wrap: wrap; }
+  .page-top h1 { font-size: 14px; }
+  .table-scroll { overflow-x: auto; }
+  .table { min-width: 640px; }
+}
+
+@media (max-width: 380px) {
+  #send { letter-spacing: 0; padding: 0 12px; }
+  .chip { display: none; }
+  .videomode button { padding: 5px 5px; }
+}
+
+/* 横屏矮高度 */
+@media (max-height: 500px) and (orientation: landscape) {
+  .wall-title, .crest-watermark { display: none; }
+  #welcome { padding: 16px 20px; }
+}

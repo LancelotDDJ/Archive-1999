@@ -1,0 +1,15 @@
+__pycache__/
+*.pyc
+config.json
+data/
+artifacts/
+.workbuddy/
+tools/tunnel/bin/
+tools/tunnel/.tunnel_secret
+tools/tunnel/.tunnel_url
+webui/assets/video/*.mp4
+*.db
+*.db-shm
+*.db-wal
+.jwt_secret
+.DS_Store

@@ -1,0 +1,165 @@
+/* ==========================================================================
+   基础层：重置 / 场景（大厅空间感）/ 开门动画 / 滚动条
+   ========================================================================== */
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; }
+
+/* 主题纹理层（剧情 CG 处理图，每主题独立） */
+html::before {
+  content: ""; position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background-image: var(--texture-url, none);
+  background-size: cover; background-position: center;
+  opacity: var(--texture-opacity, 0);
+  mix-blend-mode: var(--texture-blend, multiply);
+  transition: opacity var(--dur-slow) var(--ease-out);
+}
+
+body {
+  color: var(--text);
+  font-family: var(--font-serif);
+  background: radial-gradient(ellipse 130% 90% at 50% -12%,
+    var(--wall-hi) 0%, var(--bg) 48%, var(--wall-lo) 100%);
+  transition: background-color var(--dur-slow) var(--ease-out),
+              color var(--dur-slow) var(--ease-out);
+  position: relative;
+  overflow: hidden;
+}
+
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+button { font-family: inherit; }
+input, select { font-family: inherit; }
+
+/* 视差深度层（鼠标驱动） */
+#pxFar, #pxMid { position: fixed; inset: -60px; z-index: 0; pointer-events: none; will-change: transform; }
+#pxFar {
+  background:
+    repeating-linear-gradient(90deg,
+      transparent 0 112px, var(--light-band) 112px 122px,
+      transparent 122px 232px),
+    linear-gradient(180deg, var(--light-band) 0%, transparent 38%);
+  opacity: .6;
+}
+#pxMid {
+  background: repeating-linear-gradient(90deg,
+    transparent 0 300px, rgba(0,0,0,.075) 300px 318px,
+    transparent 318px 560px);
+}
+
+/* 斜向光柱（大厅主光） */
+#sunshaft {
+  position: fixed; top: -10%; left: 22%; width: 46vw; height: 130vh; z-index: 0;
+  pointer-events: none; transform: rotate(14deg); transform-origin: top center;
+  background: linear-gradient(180deg, rgba(255,255,255,.42) 0%,
+    rgba(255,255,255,.12) 46%, transparent 78%);
+  filter: blur(28px); mix-blend-mode: soft-light;
+}
+
+/* 场景层（接待大厅） */
+.scene { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+.wall-title {
+  position: absolute; top: 7vh; left: 50%; transform: translateX(-50%);
+  font-family: var(--font-display); font-weight: 700;
+  font-size: clamp(38px, 6.4vw, 88px); letter-spacing: .12em;
+  white-space: nowrap; color: transparent;
+  -webkit-text-stroke: 1px rgba(35,35,31,.13);
+  text-shadow: 0 3px 26px rgba(0,0,0,.55);
+  opacity: .9;
+}
+.crest-watermark {
+  position: absolute; top: 20vh; left: 50%; transform: translateX(-50%);
+  font-size: 120px; color: rgba(156,124,66,.08);
+  font-family: var(--font-display); text-shadow: 0 0 60px rgba(201,165,94,.08);
+}
+.wainscot {
+  position: absolute; left: 0; right: 0; top: 58vh; height: 1px;
+  background: linear-gradient(90deg, transparent,
+    rgba(156,124,66,.3) 30%, rgba(156,124,66,.3) 70%, transparent);
+}
+.checker-floor {
+  position: absolute; left: -12vw; right: -12vw; bottom: 0; height: 36vh;
+  background: repeating-conic-gradient(#0c0b09 0 25%, #d8d4c9 0 50%) 0 0 / 84px 84px;
+  transform: perspective(760px) rotateX(57deg);
+  transform-origin: center bottom;
+  -webkit-mask-image: linear-gradient(180deg, transparent 0%, #000 46%);
+  mask-image: linear-gradient(180deg, transparent 0%, #000 46%);
+  opacity: .92;
+}
+
+/* 噪点 + 暗角 */
+body::after {
+  content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 0;
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.55' numOctaves='2'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E"),
+    radial-gradient(ellipse at 50% 30%, transparent 58%, var(--vignette) 100%);
+  mix-blend-mode: overlay; opacity: var(--noise-opacity, .8);
+}
+
+/* ===== 开门动画 ===== */
+#gate { position: fixed; inset: 0; z-index: 200; display: flex; }
+#gate .leaf { flex: 1; position: relative;
+  background: linear-gradient(180deg, #2a2a2e 0%, #17171a 100%);
+  transition: transform 1.15s cubic-bezier(.72, 0, .28, 1); }
+#gate .leaf.l { box-shadow: inset -2px 0 0 rgba(156,124,66,.5), inset -14px 0 28px rgba(0,0,0,.6); }
+#gate .leaf.r { box-shadow: inset 2px 0 0 rgba(156,124,66,.5), inset 14px 0 28px rgba(0,0,0,.6); }
+#gate.open .leaf.l { transform: translateX(-102%); }
+#gate.open .leaf.r { transform: translateX(102%); }
+#gate .mark {
+  position: absolute; inset: 0; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 14px;
+  color: #c9a55e; transition: opacity .45s ease;
+  font-family: var(--font-display); letter-spacing: .55em; font-size: 13px; text-indent: .55em;
+  pointer-events: none;
+}
+#gate .mark .gline { width: 1px; height: 54px;
+  background: linear-gradient(180deg, transparent, #c9a55e, transparent); }
+#gate .mark .ring {
+  width: 46px; height: 46px; border: 1px solid rgba(201,165,94,.65); border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  animation: gate-pulse 1.4s ease-in-out infinite;
+}
+#gate .mark .ring::before { content: "✦"; font-size: 16px; }
+@keyframes gate-pulse { 50% { box-shadow: 0 0 18px rgba(201,165,94,.55); transform: scale(1.05); } }
+#gate.open .mark { opacity: 0; }
+#gate.done { display: none; }
+
+/* 滚动条 */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-thumb { background: var(--line); border-radius: 0; }
+::-webkit-scrollbar-thumb:hover { background: var(--gold-dim); }
+
+/* 入场动画（消息/卡片错落） */
+@keyframes rise-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.rise { animation: rise-in .42s var(--ease-out) both; }
+.rise-1 { animation-delay: .05s; } .rise-2 { animation-delay: .12s; }
+.rise-3 { animation-delay: .19s; } .rise-4 { animation-delay: .26s; }
+
+/* ===== 可访问性：尊重系统「减弱动态效果」 =====
+   策略：保留不透明度淡入（内容不消失），去除位移/缩放/无限循环装饰动画；
+   关闭视差层与光柱；滚动改为即时定位。 */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: .2s !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .2s !important;
+  }
+  .typing i, .rune-loader .core, .rune-loader .core::after,
+  #gate .mark .ring, .avatar-dot, .dot { animation: none !important; }
+  #pxFar, #pxMid, #sunshaft { display: none; }
+  #gate .leaf { transition-duration: .25s; }
+  #bgVideo { transform: none; }
+  .checker-floor { transform: none; }
+}
+
+/* ===== 共享入场关键帧（列表行/内容块） ===== */
+@keyframes fade-in { from { opacity: 0; } }
+@keyframes item-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+@keyframes page-enter { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+/* 列表行入场（配合 JS 内联 animation-delay 实现错落） */
+.row-enter { animation: item-in .3s var(--ease-out) both; }

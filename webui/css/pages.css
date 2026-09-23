@@ -1,0 +1,82 @@
+/* ==========================================================================
+   页面层：登录 / 管理后台
+   ========================================================================== */
+
+/* ============ 登录页 ============ */
+.login-wrap { display: flex; min-height: 100vh; min-height: 100dvh;
+  align-items: center; justify-content: center; padding: 24px; position: relative; z-index: 1; }
+.login-card {
+  width: min(430px, 100%); position: relative;
+  background: color-mix(in srgb, var(--panel) 88%, transparent);
+  border: 1px solid var(--line-strong); border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lift); backdrop-filter: blur(8px);
+  padding: 40px 38px 34px; animation: rise-in .55s var(--ease-out) both;
+}
+.login-card .emblem-row { display: flex; justify-content: center; margin-bottom: 12px; }
+.login-card .emblem-row img, .login-card .emblem-row svg { width: 72px; height: 66px; }
+.login-card .emblem-row .m-fill { fill: var(--gold); }
+.login-card h1 { text-align: center; font-size: 21px; letter-spacing: .2em;
+  color: var(--text); font-weight: 900; }
+.login-card .en { text-align: center; font-family: var(--font-display);
+  font-size: 10px; color: var(--gold); letter-spacing: .3em; margin-top: 7px; }
+.login-card .diamond-sep { margin: 20px 0; }
+.login-tabs { display: flex; border: 1px solid var(--line); border-radius: var(--radius);
+  overflow: hidden; margin-bottom: 20px; }
+.login-tabs button { flex: 1; border: none; background: transparent; cursor: pointer;
+  padding: 10px; font-size: 13.5px; letter-spacing: .3em; color: var(--muted);
+  transition: all var(--dur-fast); }
+.login-tabs button.on { background: color-mix(in srgb, var(--gold) 14%, transparent);
+  color: var(--gold); font-weight: 700; }
+.login-card .field input { padding: 12px 14px; font-size: 14.5px; }
+.login-card .btn-main { width: 100%; padding: 13px; font-size: 14.5px; margin-top: 6px; }
+.login-err { min-height: 20px; font-size: 12.5px; color: var(--accent);
+  text-align: center; margin-top: 10px; letter-spacing: .04em; }
+.login-foot { text-align: center; margin-top: 20px; font-size: 11px; color: var(--muted);
+  letter-spacing: .1em; line-height: 2; }
+
+/* ============ 后台通用骨架 ============ */
+.page-wrap { position: relative; z-index: 1; height: 100vh; height: 100dvh;
+  display: flex; flex-direction: column; overflow: hidden;
+  animation: fade-in .4s var(--ease-out) backwards; }
+.page-top {
+  display: flex; align-items: center; gap: 14px; padding: 14px 22px;
+  border-bottom: 1px solid rgba(201,165,94,.18);
+  background: var(--topbar-bg); backdrop-filter: blur(8px); position: relative; z-index: 2;
+}
+.page-top .brand-mini { display: flex; align-items: center; gap: 10px; }
+.page-top .brand-mini img, .page-top .brand-mini svg { width: 34px; height: 31px; }
+.page-top .brand-mini .m-fill { fill: var(--gold); }
+.page-top h1 { font-size: 16px; color: var(--text); letter-spacing: .14em; font-weight: 700; }
+.page-top .en { font-family: var(--font-display); font-size: 9.5px; color: var(--gold);
+  letter-spacing: .24em; margin-top: 2px; }
+.page-top .spacer { flex: 1; }
+.page-top nav { display: flex; gap: 6px; }
+.page-top nav a { font-size: 12px; color: var(--muted); padding: 6px 12px;
+  border: 1px solid transparent; border-radius: var(--radius); letter-spacing: .06em;
+  transition: all var(--dur-fast); }
+.page-top nav a:hover { color: var(--gold); text-decoration: none; }
+.page-top nav a.here { color: var(--gold); border-color: var(--gold-dim);
+  background: color-mix(in srgb, var(--gold) 8%, transparent); }
+.page-body { flex: 1; overflow-y: auto; padding: 22px; position: relative; z-index: 1; }
+.page-body .grid { max-width: 1240px; margin: 0 auto; display: grid; gap: 16px;
+  grid-template-columns: repeat(12, 1fr); }
+.col-3 { grid-column: span 3; } .col-4 { grid-column: span 4; }
+.col-6 { grid-column: span 6; } .col-8 { grid-column: span 8; }
+.col-12 { grid-column: span 12; }
+
+.chart-box { width: 100%; height: 320px; }
+.chart-box.tall { height: 400px; }
+.panel .foot-note { margin-top: 10px; font-size: 11px; color: var(--muted);
+  line-height: 1.7; }
+
+/* 后台 sections：12 列网格，panel 默认整行，.half 占半行（严格对齐） */
+.admin-grid {
+  max-width: 1240px; margin: 0 auto;
+  display: grid; grid-template-columns: repeat(12, 1fr); gap: 16px;
+}
+.admin-grid > .panel { grid-column: span 12; min-width: 0; }
+.admin-grid > .panel.half { grid-column: span 6; }
+.admin-grid > .panel.half + .panel.half { grid-column: span 6; }
+.job-row { font-family: var(--font-mono); font-size: 12px; }
+.kv { display: grid; grid-template-columns: 130px 1fr; gap: 6px 14px; font-size: 13px; }
+.kv dt { color: var(--muted); } .kv dd { color: var(--text); word-break: break-all; }

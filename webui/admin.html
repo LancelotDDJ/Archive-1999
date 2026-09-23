@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="st-pavlov">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>管理后台 · 重返未来：1999知识库</title>
+<link rel="icon" href="/assets/emblem.svg" type="image/svg+xml">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700;900&family=Playfair+Display:ital,wght@0,600;0,700;1,500&display=swap">
+<link rel="stylesheet" href="/css/tokens.css">
+<link rel="stylesheet" href="/css/base.css">
+<link rel="stylesheet" href="/css/components.css">
+<link rel="stylesheet" href="/css/pages.css">
+<link rel="stylesheet" href="/css/responsive.css">
+</head>
+<body>
+
+<div id="gate">
+  <div class="leaf l"></div>
+  <div class="leaf r"></div>
+  <div class="mark">
+    <div class="ring"></div>
+    <span>ST. PAVLOV FOUNDATION</span>
+    <div class="gline"></div>
+  </div>
+</div>
+
+<div class="scene">
+  <div class="wall-title">ST. PAVLOV FOUNDATION</div>
+  <div id="pxFar"></div>
+  <div id="sunshaft"></div>
+</div>
+
+<div class="page-wrap">
+  <header class="page-top">
+    <div class="brand-mini">
+      <img src="/assets/emblem.svg" alt="徽记">
+      <div>
+        <h1>管理后台</h1>
+        <div class="en">FOUNDATION CONTROL</div>
+      </div>
+    </div>
+    <div class="spacer"></div>
+    <nav>
+      <a href="/">问答大厅</a>
+      <a href="/admin" class="here">后台总览</a>
+      <a href="/admin/accounts">账户管理</a>
+    </nav>
+  </header>
+
+  <div class="page-body">
+    <div class="admin-grid">
+      <div class="panel">
+        <h3>◈ 用户管理（共 <span id="userCount">…</span> 人）</h3>
+        <div class="table-scroll">
+        <table class="table">
+          <thead><tr>
+            <th>ID</th><th>用户</th><th>角色</th><th>状态</th><th>数据量</th><th>最近登录</th><th>操作</th>
+          </tr></thead>
+          <tbody id="usersBody"></tbody>
+        </table>
+        </div>
+        <div class="foot-note">普通用户的会话与问答数据仅本人与管理员可见；禁用账号将立即吊销其全部登录状态。</div>
+      </div>
+
+    <div class="panel half">
+      <h3>◈ 知识库状态</h3>
+      <div id="kbState">读取中…</div>
+      <div style="display:flex;gap:10px;margin-top:14px">
+        <button class="btn-main" id="btnIncremental">立即增量更新</button>
+        <button class="btn-ghost" id="btnFull">全量重抓（慎用）</button>
+      </div>
+      <div class="foot-note">增量更新基于 wiki recentchanges，仅处理变更页面；月度调度任务每月 1 日 03:00 自动执行。</div>
+    </div>
+
+    <div class="panel half">
+      <h3>◈ 生成端配置（LLM）</h3>
+      <div class="field">
+        <label>提供方 PROVIDER</label>
+        <select id="f_provider">
+          <option value="auto">auto（有 Key 用 API，否则证据模式）</option>
+          <option value="openai">openai（OpenAI 兼容 API）</option>
+          <option value="none">none（纯证据模式）</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>API BASE URL</label>
+        <input id="f_base" placeholder="https://api.deepseek.com">
+      </div>
+      <div class="field">
+        <label>API KEY</label>
+        <input id="f_key" type="password" placeholder="sk-…">
+      </div>
+      <div class="field">
+        <label>模型 MODEL</label>
+        <input id="f_model" placeholder="deepseek-chat">
+      </div>
+      <div style="display:flex;gap:10px">
+        <button class="btn-main" id="llmSave">保存配置</button>
+        <button class="btn-ghost btn-danger" id="llmClear">清空 Key</button>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h3>◈ 更新任务台账</h3>
+      <div class="table-scroll">
+        <table class="table">
+          <thead><tr><th>任务</th><th>类型</th><th>状态</th><th>触发</th><th>开始</th><th>结束</th></tr></thead>
+          <tbody id="jobsBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h3>◈ 全站问答活跃</h3>
+      <div class="chart-box" id="chGlobal"></div>
+      </div>
+
+      <div class="panel">
+        <h3>◈ 最近提问记录（审计）</h3>
+        <div class="table-scroll">
+        <table class="table">
+          <thead><tr><th>时间</th><th>用户</th><th>问题</th><th>模式</th><th>耗时</th></tr></thead>
+          <tbody id="recentBody"></tbody>
+        </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="/js/lib/echarts.min.js"></script>
+<script type="module" src="/js/modules/pages/admin.js"></script>
+</body>
+</html>
