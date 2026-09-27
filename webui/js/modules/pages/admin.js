@@ -175,5 +175,38 @@ $('#llmClear').addEventListener('click', async () => {
   } catch (e) { toast(e.message, { err: true }); }
 });
 
-loadUsers(); loadKb(); loadJobs(); loadActivity(); loadLlm();
+async function loadFeedback() {
+  const body = $('#fbkBody');
+  if (!body) return;
+  try {
+    const kind = $('#fbkKind').value;
+    const from = $('#fbkFrom').value;
+    const to = $('#fbkTo').value;
+    const q = new URLSearchParams();
+    if (kind) q.set('kind', kind);
+    if (from) q.set('from', from);
+    if (to) q.set('to', to);
+    const { items } = await Api.request('/feedback/admin?' + q.toString());
+    if (!items.length) {
+      body.innerHTML = '<tr><td colspan="6">暂无反馈记录</td></tr>';
+      return;
+    }
+    body.innerHTML = items.map((f, i) => `
+      <tr class="row-enter" style="animation-delay:${Math.min(i * 30, 200)}ms">
+        <td class="job-row">${ts(f.created_at)}</td>
+        <td>${f.kind_label}</td>
+        <td>${esc(f.username)}</td>
+        <td>${f.kind === 'answer'
+          ? `<span class="${f.rating === 1 ? 'fbk-rating-pos' : 'fbk-rating-neg'}">${f.rating_label}</span>`
+          : '—'}</td>
+        <td class="fbk-snippet">${esc(f.content || f.answer_snippet || '（无补充说明）')}</td>
+        <td class="fbk-conv">${f.conv_id ? esc(f.conv_id.slice(0, 10)) + '…' : '—'}</td>
+      </tr>`).join('');
+  } catch (e) {
+    body.innerHTML = `<tr><td colspan="6">加载失败：${esc(e.message)}</td></tr>`;
+  }
+}
+
+loadUsers(); loadKb(); loadJobs(); loadActivity(); loadLlm(); loadFeedback();
 setInterval(loadJobs, 15000);
+$('#fbkQuery').addEventListener('click', loadFeedback);

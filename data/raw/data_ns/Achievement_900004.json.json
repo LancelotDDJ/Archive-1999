@@ -1,0 +1,1 @@
+{"id":900004,"category":9999,"groupId":0,"order":0,"name":"初步下潜","uiPlayerParam":"","isMask":0,"startTime":"","endTime":"","rule":0,"achievement_task":[{"id":90000401,"achievementId":900004,"desc":"迷思海下潜深度达到300M","extraDesc":"§无","listenerType":"TowerPassLayer","listenerParam":"1#0#30","maxProgress":1,"sortId":1,"level":1,"icon":"","image":""}]}

@@ -1,0 +1,1 @@
+{"id":412904,"category":4,"groupId":129,"order":9,"name":"万两户","uiPlayerParam":"","isMask":0,"startTime":"","endTime":"","rule":0,"achievement_task":[{"id":41290401,"achievementId":412904,"desc":"在“打虎记”中观看所有章节。","extraDesc":"想开点，虽然货币不在了，但是信用还在。","listenerType":"EpisodeFinish","listenerParam":"3470109","maxProgress":1,"sortId":1,"level":1,"icon":"41290401","image":""}]}

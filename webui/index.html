@@ -59,6 +59,7 @@
       <a href="/admin" id="adminNavItem" style="display:none">管理后台</a>
       <button id="introBtn">◈ 项目简介</button>
       <button id="settingsBtn">⚙ 界面设置</button>
+      <button id="fbkBtn">✎ 用户反馈</button>
       <button id="logoutBtn">⏻ 退出登录</button>
       <div class="lab" style="margin-top:10px">◈ 圣洛夫基金会 · 官方制式</div>
     </div>
@@ -80,7 +81,7 @@
 
     <div id="chatWrap">
       <div id="bgCine">
-        <video id="bgVideo" src="/assets/video/4K60Hz.mp4" muted loop autoplay playsinline></video>
+        <video id="bgVideo" src="/assets/video/library_daynight.mp4" muted loop autoplay playsinline></video>
         <div id="bgLight"></div>
         <div id="bgVignette"></div>
       </div>
@@ -182,6 +183,22 @@
     <div class="intro-src">
       数据来源：<a href="https://res1999.huijiwiki.com/wiki/%E9%A6%96%E9%A1%B5" target="_blank" rel="noopener">重返未来：1999 中文维基</a>
       ——本项目的全部资料均整理自该维基社区，谨向每一位编辑者致谢。
+    </div>
+  </div>
+</div>
+<div id="fbkModal">
+  <div class="i-sheet">
+    <button class="i-close" id="fbkClose" title="关闭 (Esc)">✕</button>
+    <div class="t-crest">✦ ✦ ✦</div>
+    <h2>用 户 反 馈</h2>
+    <div id="fbkForm">
+      <p class="fbk-lead">欢迎告诉我们你的使用体验、遇到的问题或希望增加的功能——每一条反馈都会被认真阅读。</p>
+      <textarea id="fbkText" maxlength="2000" rows="6"
+        placeholder="请写下你的反馈（1~2000 字）…"></textarea>
+      <div class="fbk-actions"><button id="fbkSubmit">提交反馈</button></div>
+    </div>
+    <div id="fbkThanks" style="display:none">
+      <p class="fbk-lead fbk-done">✦ 感谢您的反馈，我们会认真处理。</p>
     </div>
   </div>
 </div>

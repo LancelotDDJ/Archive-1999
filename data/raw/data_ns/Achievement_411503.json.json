@@ -1,0 +1,1 @@
+{"id":411503,"category":4,"groupId":115,"order":5,"name":"惊喜口味","uiPlayerParam":"","isMask":0,"startTime":"","endTime":"","rule":0,"achievement_task":[{"id":41150301,"achievementId":411503,"desc":"获得1只变异魔精。","extraDesc":"你永远不知道下一次会扭出什么口味的糖球。","listenerType":"DoneCountTotal","listenerParam":"GainSpSkinCritter","maxProgress":1,"sortId":1,"level":1,"icon":"41150301","image":""}]}

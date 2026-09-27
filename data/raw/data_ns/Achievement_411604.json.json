@@ -1,0 +1,1 @@
+{"id":411604,"category":4,"groupId":116,"order":1,"name":"幕后训练","uiPlayerParam":"","isMask":0,"startTime":"","endTime":"","rule":0,"achievement_task":[{"id":41160401,"achievementId":411604,"desc":"在“太阳的背面”中观看所有章节。","extraDesc":"有效浇灭观赛后不自量力的冲动和妄想。","listenerType":"EpisodeFinish","listenerParam":"2350108","maxProgress":1,"sortId":1,"level":1,"icon":"41160401","image":""}]}

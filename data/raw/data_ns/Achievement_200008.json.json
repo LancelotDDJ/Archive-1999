@@ -1,0 +1,1 @@
+{"id":200008,"category":3,"groupId":1,"order":8,"name":"品学兼优","uiPlayerParam":"","isMask":0,"startTime":"","endTime":"","rule":0,"achievement_task":[{"id":20000801,"achievementId":200008,"desc":"完成教学笔记中的所有课题。","extraDesc":"惊人的学习热情，真希望你在学生时代就有这份劲头。","listenerType":"DungeonPassCount","listenerParam":"11","maxProgress":19,"sortId":2,"level":2,"icon":"20000801","image":""}]}

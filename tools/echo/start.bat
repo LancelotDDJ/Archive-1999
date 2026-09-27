@@ -1,7 +1,7 @@
 @echo off
 rem Echo 双端通信测试工具 - 一键启动两端
 cd /d %~dp0
-set PY=python
+set PY=C:\Users\Lance\.workbuddy\binaries\python\envs\default\Scripts\python.exe
 if not exist "%PY%" set PY=python
 start "Echo-Server(8701)" cmd /k "title Echo 服务端 :8701 && %PY% echo_server.py"
 timeout /t 1 >nul

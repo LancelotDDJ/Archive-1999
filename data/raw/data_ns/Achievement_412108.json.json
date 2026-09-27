@@ -1,0 +1,1 @@
+{"id":412108,"category":4,"groupId":121,"order":9,"name":"美好世界","uiPlayerParam":"","isMask":0,"startTime":"","endTime":"","rule":0,"achievement_task":[{"id":41210801,"achievementId":412108,"desc":"观看坎吉拉的轶事。","extraDesc":"人们说，你应远离恶事，亲近一切善行。","listenerType":"HeroStoryFinish","listenerParam":"24","maxProgress":1,"sortId":1,"level":1,"icon":"41210801","image":""}]}

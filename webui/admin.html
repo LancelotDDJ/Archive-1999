@@ -110,6 +110,26 @@
       </div>
     </div>
 
+      <div class="panel">
+        <h3>◈ 反馈管理</h3>
+        <div class="fbk-filters">
+          <select id="fbkKind">
+            <option value="">全部类型</option>
+            <option value="answer">回答反馈</option>
+            <option value="general">一般反馈</option>
+          </select>
+          <input type="date" id="fbkFrom"> <span class="fbk-sep">至</span>
+          <input type="date" id="fbkTo">
+          <button id="fbkQuery">查询</button>
+        </div>
+        <div class="table-scroll">
+          <table class="table">
+            <thead><tr><th>时间</th><th>类型</th><th>用户</th><th>评价</th><th>内容</th><th>关联</th></tr></thead>
+            <tbody id="fbkBody"><tr><td colspan="6">读取中…</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
     <div class="panel">
       <h3>◈ 全站问答活跃</h3>
       <div class="chart-box" id="chGlobal"></div>

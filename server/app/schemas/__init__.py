@@ -89,3 +89,13 @@ class LLMConfigBody(BaseModel):
 # ---------------- kb admin ----------------
 class UpdateTriggerBody(BaseModel):
     kind: str = Field(default="incremental", pattern="^(incremental|full)$")
+
+
+# ---------------- feedback ----------------
+class FeedbackBody(BaseModel):
+    kind: str = Field(pattern="^(answer|general)$")
+    conv_id: str | None = None
+    answer_key: str | None = None
+    answer_snippet: str | None = None
+    rating: int | None = None
+    content: str = ""

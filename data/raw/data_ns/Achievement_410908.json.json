@@ -1,0 +1,1 @@
+{"id":410908,"category":4,"groupId":109,"order":9,"name":"罪与罚","uiPlayerParam":"","isMask":0,"startTime":"","endTime":"","rule":0,"achievement_task":[{"id":41090801,"achievementId":410908,"desc":"观看芝诺阵营的轶事。","extraDesc":"子弹射来时，真理首当其冲，公义紧随其后。","listenerType":"HeroStoryFinish","listenerParam":"10","maxProgress":1,"sortId":1,"level":1,"icon":"41090801","image":""}]}

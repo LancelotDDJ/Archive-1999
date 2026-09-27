@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import logging
 import os
+import threading
 import time
 from logging.handlers import RotatingFileHandler
 from pathlib import Path
@@ -16,6 +17,7 @@ from fastapi.responses import FileResponse, HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 
 from .api.v1 import auth as v1_auth
+from .api.v1 import feedback as v1_feedback
 from .api.v1 import conversations as v1_conversations
 from .api.v1 import qa as v1_qa
 from .api.v1 import system as v1_system
@@ -106,17 +108,22 @@ def create_app() -> FastAPI:
     # ---------- 公网访问口令门禁 ----------
     @app.middleware("http")
     async def token_guard(request: Request, call_next):
-        """ARCHIVE_TOKEN 非空时启用：首访 ?k=口令 → 种 30 天 Cookie；否则 401 门禁页。"""
-        if not _ACCESS_TOKEN:
-            return await call_next(request)
-        k = request.query_params.get("k", "")
-        if k == _ACCESS_TOKEN or request.cookies.get("kb_token", "") == _ACCESS_TOKEN:
-            resp = await call_next(request)
-            if k == _ACCESS_TOKEN:
-                resp.set_cookie("kb_token", _ACCESS_TOKEN, max_age=2592000,
-                                httponly=True, samesite="lax")
-            return resp
-        return HTMLResponse(_GATE_401_HTML, status_code=401)
+        """ARCHIVE_TOKEN 非空时启用：经隧道访客首访 ?k=口令 → 种 30 天 Cookie；
+        本机直连（回环地址且未经隧道转发）自动豁免，方便管理员本机使用。"""
+        if _ACCESS_TOKEN:
+            client = request.client.host if request.client else ""
+            via_tunnel = any(h in request.headers
+                             for h in ("cf-connecting-ip", "x-forwarded-for"))
+            if not (client in ("127.0.0.1", "::1") and not via_tunnel):
+                k = request.query_params.get("k", "")
+                if k == _ACCESS_TOKEN or request.cookies.get("kb_token", "") == _ACCESS_TOKEN:
+                    resp = await call_next(request)
+                    if k == _ACCESS_TOKEN:
+                        resp.set_cookie("kb_token", _ACCESS_TOKEN, max_age=2592000,
+                                        httponly=True, samesite="lax")
+                    return resp
+                return HTMLResponse(_GATE_401_HTML, status_code=401)
+        return await call_next(request)
 
     # ---------- API 路由 ----------
     app.include_router(v1_auth.router, prefix=API)
@@ -124,6 +131,7 @@ def create_app() -> FastAPI:
     app.include_router(v1_qa.router, prefix=API)
     app.include_router(v1_conversations.router, prefix=API)
     app.include_router(v1_system.router, prefix=API)
+    app.include_router(v1_feedback.router, prefix=API)
 
     # ---------- 页面与静态资源 ----------
     @app.get("/", include_in_schema=False)
@@ -151,12 +159,22 @@ def create_app() -> FastAPI:
     def startup() -> None:
         db()                                  # 建库建表
         auth_service.bootstrap_admin()        # 首启管理员引导
-        try:
-            st = KBStore.get().status()
-            print(f"[startup] KB ready={st['ready']} chunks={st['chunks']} "
-                  f"entities={st['entities']}", flush=True)
-        except KBNotReadyError as e:
-            print(f"[startup] {e}", flush=True)
+
+        # KB 冷加载（约 300MB）移入后台线程：端口立即就绪，登录/注册/会话切换
+        # 不再被装载阻塞；装载完成前到达的知识库类请求会在 KBStore 锁上排队。
+        def _warm_kb() -> None:
+            t0 = time.time()
+            try:
+                st = KBStore.get().status()
+                print(f"[startup][后台装载完成 {time.time() - t0:.1f}s] "
+                      f"KB ready={st['ready']} chunks={st['chunks']} "
+                      f"entities={st['entities']}", flush=True)
+            except KBNotReadyError as e:
+                print(f"[startup][后台装载] {e}", flush=True)
+
+        threading.Thread(target=_warm_kb, name="kb-prewarm", daemon=True).start()
+        from .infra import update_runner
+        update_runner.recover_stale()         # 清扫重启前遗留的 running 任务
         scheduler.start()                     # 每月 1 日自动增量更新
 
     return app

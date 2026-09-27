@@ -1,0 +1,1 @@
+{"id":412507,"category":4,"groupId":125,"order":8,"name":"永远的沉默","uiPlayerParam":"","isMask":0,"startTime":"","endTime":"","rule":0,"achievement_task":[{"id":41250701,"achievementId":412507,"desc":"观看讣告人的轶事。","extraDesc":"嘿——你醒了？这里是天堂还是地狱？","listenerType":"HeroStoryPlotFinish","listenerParam":"0#303707","maxProgress":1,"sortId":1,"level":1,"icon":"41250701","image":""}]}

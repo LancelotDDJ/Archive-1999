@@ -1,0 +1,1 @@
+{"id":900001,"category":9999,"groupId":0,"order":0,"name":"初识神秘学","uiPlayerParam":"","isMask":0,"startTime":"","endTime":"","rule":0,"achievement_task":[{"id":90000101,"achievementId":900001,"desc":"观看完第1章剧情","extraDesc":"§无","listenerType":"EpisodeFinish","listenerParam":"10115","maxProgress":1,"sortId":1,"level":1,"icon":"","image":""}]}

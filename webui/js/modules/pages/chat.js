@@ -26,7 +26,7 @@ $('#vmModal').addEventListener('click', e => {
 });
 
 /* ---------- 状态 ---------- */
-const S = { sessionId: null, title: '', messages: [], agent: false, sim: false, sending: false };
+const S = { sessionId: null, title: '', messages: [], agent: false, sim: false, sending: false, ratedKeys: new Set() };
 
 function relTime(ts) {
   const d = Date.now() / 1000 - ts;
@@ -92,7 +92,7 @@ async function refreshSessions() {
 }
 
 function newChat() {
-  S.sessionId = null; S.title = ''; S.messages = [];
+  S.sessionId = null; S.title = ''; S.messages = []; S.ratedKeys = new Set();
   $('#convTitle') && ($('#convTitle').textContent = '');
   chatInner.innerHTML = WELCOME_HTML;
   bindWelcome();
@@ -108,6 +108,10 @@ async function openSession(id) {
     // 历史消息整批重渲染时跳过入场动画, 避免"所有卡片同时弹入"
     chatInner.classList.add('no-anim');
     S.messages = (s.messages || []).map(m => ({ role: m.role, content: m.content, meta: m.meta || {} }));
+    try {
+      const rk = await Api.request(`/feedback/rated?conv_id=${encodeURIComponent(id)}`);
+      S.ratedKeys = new Set(rk.keys || []);
+    } catch { S.ratedKeys = new Set(); }
     for (const m of S.messages) renderStored(m);
     requestAnimationFrame(() => chatInner.classList.remove('no-anim'));
     scrollBottom();
@@ -230,6 +234,65 @@ function renderStored(m) {
       `<p style="font-size:11px;color:var(--muted)">报告已存档：${esc(meta.report_path)}</p>`);
   }
   chatInner.appendChild(d);
+  if (meta.answer_key) {
+    d.insertAdjacentHTML('beforeend', ratingRowHtml(S.sessionId, meta.answer_key,
+      (m.content || '').slice(0, 200), S.ratedKeys.has(meta.answer_key)));
+    bindRateRow(d.lastElementChild, () => S.sessionId, meta.answer_key,
+      (m.content || '').slice(0, 200));
+  }
+}
+
+/* ---------- 回答评价 ---------- */
+function ratingRowHtml(convId, key, snippet, rated) {
+  if (rated) return '<div class="rate-row rated">感谢您的反馈</div>';
+  return `<div class="rate-row">
+    <span class="rate-ask">这条回答对您有帮助吗？</span>
+    <button class="rate-btn" data-r="1">好评</button>
+    <button class="rate-btn" data-r="-1">差评</button>
+  </div>`;
+}
+
+function bindRateRow(row, convIdFn, key, snippet) {
+  row.querySelectorAll('.rate-btn').forEach(b => {
+    b.addEventListener('click', () => {
+      if (row.classList.contains('rated')) return;
+      const r = b.dataset.r;
+      row.innerHTML = `<div class="rate-panel">
+        <textarea class="rate-text" maxlength="1000" rows="2"
+          placeholder="补充说明（可选）…"></textarea>
+        <div class="rate-actions">
+          <button class="rate-submit">提交反馈</button>
+          <button class="rate-skip">跳过</button>
+        </div></div>`;
+      row.querySelector('.rate-submit').addEventListener('click', () =>
+        sendRate(row, convIdFn(), key, snippet, Number(r),
+                 row.querySelector('.rate-text').value));
+      row.querySelector('.rate-skip').addEventListener('click', () =>
+        sendRate(row, convIdFn(), key, snippet, Number(r), ''));
+    });
+  });
+}
+
+async function sendRate(row, convId, key, snippet, rating, content) {
+  if (!convId) { toast('会话尚未保存，请稍后再试', { err: true }); return; }
+  try {
+    await Api.request('/feedback', {
+      method: 'POST',
+      json: { kind: 'answer', conv_id: convId, answer_key: key,
+              answer_snippet: snippet, rating, content: content || '' },
+    });
+    row.innerHTML = '感谢您的反馈';
+    row.classList.add('rated');
+    S.ratedKeys.add(key);
+  } catch (e) {
+    if (String(e.message).includes('已评价')) {
+      row.innerHTML = '感谢您的反馈';
+      row.classList.add('rated');
+      S.ratedKeys.add(key);
+    } else {
+      toast('提交失败：' + e.message, { err: true });
+    }
+  }
 }
 
 function botShell() {
@@ -347,16 +410,20 @@ async function ask() {
     $('#send').disabled = false;
   }
 
+  const answerKey = 'k' + Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
   const finalMeta = {
     mode: isSim ? 'simulate' : (meta.mode || (S.agent ? 'agent' : '')),
     model: meta.model || '', style: meta.style || '',
     sources: meta.sources || [], entity_meta: meta.entity_meta || null,
     steps: isSim ? simLog : agentLog,
     report_path: meta.report_path || null,
+    answer_key: answerKey,
   };
   shell.innerHTML = botFinalHtml(finalMeta, fullText)
     + (isSim ? `<div class="sim-cards">${simCards}</div>` : '')
-    + (finalMeta.report_path ? `<p style="font-size:11px;color:var(--muted)">报告已存档：${esc(finalMeta.report_path)}</p>` : '');
+    + (finalMeta.report_path ? `<p style="font-size:11px;color:var(--muted)">报告已存档：${esc(finalMeta.report_path)}</p>` : '')
+    + ratingRowHtml(S.sessionId, answerKey, fullText.slice(0, 200), false);
+  bindRateRow(shell.lastElementChild, () => S.sessionId, answerKey, fullText.slice(0, 200));
   S.messages.push({ role: 'assistant', content: fullText, meta: finalMeta });
   scrollBottom();
   persistSession();
@@ -391,6 +458,27 @@ const intro = $('#intro');
 $('#introBtn').addEventListener('click', () => intro.classList.add('show'));
 $('#introClose').addEventListener('click', () => intro.classList.remove('show'));
 intro.addEventListener('click', e => { if (e.target === intro) intro.classList.remove('show'); });
+
+/* ---------- 用户反馈弹窗 ---------- */
+const fbk = $('#fbkModal');
+$('#fbkBtn').addEventListener('click', () => {
+  $('#fbkForm').style.display = '';
+  $('#fbkThanks').style.display = 'none';
+  $('#fbkText').value = '';
+  fbk.classList.add('show');
+});
+$('#fbkClose').addEventListener('click', () => fbk.classList.remove('show'));
+fbk.addEventListener('click', e => { if (e.target === fbk) fbk.classList.remove('show'); });
+$('#fbkSubmit').addEventListener('click', async () => {
+  const text = $('#fbkText').value.trim();
+  if (!text) { toast('请先填写反馈内容', { err: true }); return; }
+  try {
+    await Api.request('/feedback', { method: 'POST', json: { kind: 'general', content: text } });
+    $('#fbkForm').style.display = 'none';
+    $('#fbkThanks').style.display = '';
+    setTimeout(() => fbk.classList.remove('show'), 1500);
+  } catch (e) { toast('提交失败：' + e.message, { err: true }); }
+});
 
 /* ---------- 登出 / 用户信息 ---------- */
 $('#logoutBtn').addEventListener('click', () => Auth.logout());

@@ -1,0 +1,1 @@
+{"id":411903,"category":4,"groupId":119,"order":1,"name":"双线叙事","uiPlayerParam":"","isMask":0,"startTime":"","endTime":"","rule":0,"achievement_task":[{"id":41190301,"achievementId":411903,"desc":"在“暗色带编织”中观看所有章节。","extraDesc":"首先写好两个故事，接着再拼在一起。","listenerType":"ChapterMapElementByType","listenerParam":"2601","maxProgress":5,"sortId":1,"level":1,"icon":"41190301","image":""}]}

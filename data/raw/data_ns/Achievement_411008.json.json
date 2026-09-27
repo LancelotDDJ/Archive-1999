@@ -1,0 +1,1 @@
+{"id":411008,"category":4,"groupId":110,"order":2,"name":"新童子军精神","uiPlayerParam":"","isMask":0,"startTime":"","endTime":"","rule":0,"achievement_task":[{"id":41100801,"achievementId":411008,"desc":"观看小春雀儿的轶事。","extraDesc":"你可曾听闻，雀儿追寻蝴蝶上了高山的故事？","listenerType":"HeroStoryFinish","listenerParam":"11","maxProgress":1,"sortId":1,"level":1,"icon":"41100801","image":""}]}

@@ -1,0 +1,1 @@
+{"id":411505,"category":4,"groupId":115,"order":6,"name":"从天而降","uiPlayerParam":"","isMask":0,"startTime":"","endTime":"","rule":0,"achievement_task":[{"id":41150501,"achievementId":411505,"desc":"收集1只6星魔精。","extraDesc":"好运总会找上那些愿意一直等待的人，比如你。","listenerType":"DoneCountTotal","listenerParam":"CritterRare5","maxProgress":1,"sortId":1,"level":1,"icon":"41150501","image":""}]}

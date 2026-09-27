@@ -32,6 +32,17 @@ class _Tee(io.StringIO):
         return super().write(s)
 
 
+def recover_stale() -> int:
+    """进程重启后，把遗留的 running 任务标记为 failed（执行线程已随进程消失）。"""
+    running = db().job_running()
+    if not running:
+        return 0
+    db().job_finish(running["id"], False,
+                    {"error": "服务重启导致任务中断"}, "")
+    print(f"[update] 遗留任务 #{running['id']} 已标记为 failed", flush=True)
+    return 1
+
+
 def trigger(kind: str, trigger_by: str, actor: str) -> dict:
     """登记任务并后台执行。已有在跑任务则拒绝。"""
     running = db().job_running()

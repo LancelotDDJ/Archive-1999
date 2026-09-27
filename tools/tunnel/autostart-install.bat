@@ -6,7 +6,7 @@ if %errorlevel% neq 0 (
     powershell -NoProfile -Command "Start-Process -FilePath '%~f0' -Verb RunAs"
     exit /b
 )
-set PY=python
+set PY=C:\Users\Lance\.workbuddy\binaries\python\envs\default\Scripts\python.exe
 if not exist "%PY%" set PY=python
 schtasks /Create /F /SC ONSTART /RL HIGHEST /TN "Archive1999-Tunnel" /TR "cmd /c cd /d %~dp0 && %PY% serve_public.py"
 if %errorlevel% equ 0 (echo [OK] Autostart task created: Archive1999-Tunnel) else (echo [FAIL] create failed)

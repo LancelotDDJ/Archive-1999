@@ -1,0 +1,1 @@
+{"id":900003,"category":9999,"groupId":0,"order":0,"name":"辛勤劳作","uiPlayerParam":"","isMask":0,"startTime":"","endTime":"","rule":0,"achievement_task":[{"id":90000301,"achievementId":900003,"desc":"累计消耗活性5000点","extraDesc":"§无","listenerType":"CurrencyDecTotal","listenerParam":"4","maxProgress":5000,"sortId":1,"level":1,"icon":"","image":""}]}

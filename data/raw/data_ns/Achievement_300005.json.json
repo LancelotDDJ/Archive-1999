@@ -1,0 +1,1 @@
+{"id":300005,"category":1,"groupId":0,"order":0,"name":"湿雨靴","uiPlayerParam":"","isMask":0,"startTime":"","endTime":"","rule":0,"achievement_task":[{"id":30000501,"achievementId":300005,"desc":"开启自由之门。","extraDesc":"我很抱歉，恐怕这不是那种令人感到舒适和干爽的故事。","listenerType":"EpisodeFinish","listenerParam":"10316","maxProgress":1,"sortId":3,"level":3,"icon":"30000501","image":""}]}

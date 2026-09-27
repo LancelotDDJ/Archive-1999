@@ -1,0 +1,1 @@
+{"id":411308,"category":4,"groupId":113,"order":8,"name":"从大话开始","uiPlayerParam":"","isMask":0,"startTime":"","endTime":"","rule":0,"achievement_task":[{"id":41130801,"achievementId":411308,"desc":"观看挖掘艺术的轶事。","extraDesc":"就算做不到，至少也先喊出来。","listenerType":"HeroStoryFinish","listenerParam":"16","maxProgress":1,"sortId":1,"level":1,"icon":"41130801","image":""}]}

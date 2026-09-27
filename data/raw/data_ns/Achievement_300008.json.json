@@ -1,0 +1,1 @@
+{"id":300008,"category":1,"groupId":0,"order":0,"name":"高级合同","uiPlayerParam":"","isMask":0,"startTime":"","endTime":"","rule":0,"achievement_task":[{"id":30000801,"achievementId":300008,"desc":"真理之石记录了你的誓言。","extraDesc":"据传和罗马的真理之口是同一支“血脉”，社会契约论的支持者会喜欢这个的。","listenerType":"EpisodeFinish","listenerParam":"10509","maxProgress":1,"sortId":3,"level":3,"icon":"30000801","image":""}]}

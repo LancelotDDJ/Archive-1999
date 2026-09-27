@@ -1,0 +1,1 @@
+{"id":900002,"category":9999,"groupId":0,"order":0,"name":"坚持不懈","uiPlayerParam":"","isMask":0,"startTime":"","endTime":"","rule":0,"achievement_task":[{"id":90000201,"achievementId":900002,"desc":"累计登录达到30天","extraDesc":"§无","listenerType":"TotalLoginDays","listenerParam":"","maxProgress":30,"sortId":1,"level":1,"icon":"","image":""}]}

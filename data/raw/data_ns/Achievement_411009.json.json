@@ -1,0 +1,1 @@
+{"id":411009,"category":4,"groupId":110,"order":9,"name":"狩猎愉快","uiPlayerParam":"","isMask":0,"startTime":"","endTime":"","rule":0,"achievement_task":[{"id":41100901,"achievementId":411009,"desc":"观看塞梅尔维斯的轶事。","extraDesc":"关于保障睡眠时间重要性的有力证明。","listenerType":"HeroStoryFinish","listenerParam":"12","maxProgress":1,"sortId":1,"level":1,"icon":"41100901","image":""}]}

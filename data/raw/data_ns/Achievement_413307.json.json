@@ -1,0 +1,1 @@
+{"id":413307,"category":4,"groupId":133,"order":5,"name":"蓝色电台","uiPlayerParam":"","isMask":0,"startTime":"","endTime":"","rule":0,"achievement_task":[{"id":41330701,"achievementId":413307,"desc":"观看柏林以东全部轶事剧情","extraDesc":"我们都想要记住那些发生在夜半星空下的故事。","listenerType":"HeroStoryPlotFinish","listenerParam":"0#302007","maxProgress":1,"sortId":1,"level":1,"icon":"41330701","image":""}]}

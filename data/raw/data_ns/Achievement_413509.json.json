@@ -1,0 +1,1 @@
+{"id":413509,"category":4,"groupId":135,"order":10,"name":"真相显现法","uiPlayerParam":"","isMask":0,"startTime":"","endTime":"","rule":0,"achievement_task":[{"id":41350901,"achievementId":413509,"desc":"观看洋葱头全部轶事剧情","extraDesc":"一层，又一层，再一层，真相往往辛辣。","listenerType":"HeroStoryPlotFinish","listenerParam":"0#305406","maxProgress":1,"sortId":1,"level":1,"icon":"41350901","image":""}]}

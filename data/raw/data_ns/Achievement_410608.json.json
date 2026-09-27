@@ -1,0 +1,1 @@
+{"id":410608,"category":4,"groupId":106,"order":8,"name":"第三类接触","uiPlayerParam":"","isMask":0,"startTime":"","endTime":"","rule":0,"achievement_task":[{"id":41060801,"achievementId":410608,"desc":"观看星之眼的轶事。","extraDesc":"多方混战？不，这是浪漫主义。","listenerType":"HeroStoryFinish","listenerParam":"5","maxProgress":1,"sortId":1,"level":1,"icon":"41060801","image":""}]}

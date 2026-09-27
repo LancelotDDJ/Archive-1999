@@ -1,0 +1,1 @@
+{"id":410418,"category":4,"groupId":104,"order":9,"name":"法定休息日","uiPlayerParam":"","isMask":0,"startTime":"","endTime":"","rule":0,"achievement_task":[{"id":41041801,"achievementId":410418,"desc":"观看雾行者的轶事。","extraDesc":"适当闲聊有助于安抚因加班而滋生的情绪。","listenerType":"HeroStoryFinish","listenerParam":"1","maxProgress":1,"sortId":1,"level":1,"icon":"41041801","image":""}]}

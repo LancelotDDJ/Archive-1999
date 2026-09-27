@@ -45,7 +45,7 @@ def _fetch_changed_titles(api: ApiClient, since: str) -> tuple[set, set]:
                   "rclimit": "500", "format": "json", "formatversion": "2"}
         if rccontinue:
             params["rccontinue"] = rccontinue
-        d = api.get(params)
+        d = api.get(params, max_retry=API_RETRY)
         for rc in d.get("query", {}).get("recentchanges", []):
             (ns0 if rc.get("ns") == 0 else ns3500).add(rc["title"])
         rccontinue = (d.get("continue") or {}).get("rccontinue")
@@ -59,7 +59,7 @@ def _resolve_pageids(api: ApiClient, titles: set[str]) -> dict[str, int | None]:
     tl = sorted(titles)
     for i in range(0, len(tl), 50):
         d = api.get({"action": "query", "titles": "|".join(tl[i:i + 50]),
-                     "format": "json", "formatversion": "2"})
+                     "format": "json", "formatversion": "2"}, max_retry=API_RETRY)
         for p in d.get("query", {}).get("pages", []):
             out[p["title"]] = p.get("pageid")
         time.sleep(0.2)
@@ -70,7 +70,7 @@ def _fetch_render(api: ApiClient, pageid: int, title: str) -> Path:
     d = api.get({"action": "parse", "page": title,
                  "prop": "text|categories|displaytitle",
                  "disablelimitreport": 1, "disableeditsection": 1,
-                 "disabletoc": 1, "format": "json", "formatversion": "2"})
+                 "disabletoc": 1, "format": "json", "formatversion": "2"}, max_retry=API_RETRY)
     path = RAW / "render" / f"{pageid}.json"
     path.write_text(json.dumps(d, ensure_ascii=False), encoding="utf-8")
     return path
@@ -82,13 +82,16 @@ def _fetch_data_content(api: ApiClient, titles: set[str]) -> dict[str, str | Non
     for i in range(0, len(tl), 50):
         d = api.get({"action": "query", "prop": "revisions", "rvprop": "content",
                      "rvslots": "main", "format": "json", "formatversion": "2",
-                     "titles": "|".join(tl[i:i + 50])})
+                     "titles": "|".join(tl[i:i + 50])}, max_retry=API_RETRY)
         for p in d.get("query", {}).get("pages", []):
             try:
                 got[p["title"]] = p["revisions"][0]["slots"]["main"]["content"]
             except (KeyError, IndexError, TypeError):
                 got[p["title"]] = None
     return got
+
+
+API_RETRY = 3   # 更新路径的 API 失败重试预算（默认 10 次×40s 在网络故障时会让任务假死 30+ 分钟）
 
 
 def run_incremental(force: list[str] | None = None, progress=print) -> dict:
@@ -122,6 +125,7 @@ def run_incremental(force: list[str] | None = None, progress=print) -> dict:
         aliases_now = json.loads((KB / "aliases.json").read_text(encoding="utf-8"))
         canon_fn, _types = links_mod.make_canon(ents, aliases_now)
         page_links: dict[str, tuple[set, str]] = {}
+        failed_renders: list[str] = []
         for title in sorted(ns0):
             pid = ids.get(title)
             if pid is None:
@@ -131,6 +135,7 @@ def run_incremental(force: list[str] | None = None, progress=print) -> dict:
                 path = _fetch_render(api, pid, title)
             except Exception as e:
                 progress(f"  render failed {title}: {e}")
+                failed_renders.append(title)
                 continue
             new_cs, entity = chunk_page(path, wt_map)
             changed_pages.add(title)
@@ -144,6 +149,23 @@ def run_incremental(force: list[str] | None = None, progress=print) -> dict:
                     entity.get("type_name", "百科") if entity else "百科")
             except Exception as e:
                 progress(f"  links extract failed {title}: {e}")
+        # 失败页统一重试一轮（网络抖动常见；仍失败则计入 result.report 供人工跟进）
+        if failed_renders:
+            progress(f"retrying {len(failed_renders)} failed renders once")
+            still_failed = []
+            for title in list(failed_renders):
+                pid = ids.get(title)
+                try:
+                    path = _fetch_render(api, pid, title)
+                    new_cs, entity = chunk_page(path, wt_map)
+                    changed_pages.add(title)
+                    to_embed.extend(new_cs)
+                    if entity:
+                        ents[title] = entity
+                except Exception as e:
+                    progress(f"  retry still failed {title}: {e}")
+                    still_failed.append(title)
+            failed_renders = still_failed
         (KB / "entities.json").write_text(
             json.dumps(ents, ensure_ascii=False, indent=1), encoding="utf-8")
         try:
@@ -234,5 +256,7 @@ def run_incremental(force: list[str] | None = None, progress=print) -> dict:
                        encoding="utf-8")
     result = {"changed_pages": len(changed_pages), "total_chunks": len(new_all),
               "embedded_new": len(fresh)}
+    if failed_renders:
+        result["failed_pages"] = sorted(failed_renders)
     progress(f"UPDATE DONE: {result}")
     return result

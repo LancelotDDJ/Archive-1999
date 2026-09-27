@@ -1,0 +1,1 @@
+{"id":411304,"category":4,"groupId":113,"order":9,"name":"熄灯时刻","uiPlayerParam":"","isMask":0,"startTime":"","endTime":"","rule":0,"achievement_task":[{"id":41130401,"achievementId":411304,"desc":"在“睡前故事”中完成所有章节。","extraDesc":"还有没有不睡觉的坏孩子呀。","listenerType":"Act164","listenerParam":"1211408#12114","maxProgress":1,"sortId":1,"level":1,"icon":"41130401","image":""}]}

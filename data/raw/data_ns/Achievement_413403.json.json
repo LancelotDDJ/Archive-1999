@@ -1,0 +1,1 @@
+{"id":413403,"category":4,"groupId":134,"order":1,"name":"进步之狮","uiPlayerParam":"","isMask":0,"startTime":"","endTime":"","rule":0,"achievement_task":[{"id":41340301,"achievementId":413403,"desc":"参与1次鬃毛邮报挑战","extraDesc":"一种更为科学的伤害分配方式。","listenerType":"Act128TargetPointBossNum","listenerParam":"1#138520","maxProgress":1,"sortId":1,"level":1,"icon":"41340301","image":""}]}

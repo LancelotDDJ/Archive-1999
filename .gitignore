@@ -1,15 +1,33 @@
+# ---- 密钥与实例配置 ----
+config.json
+data/.jwt_secret
+.workbuddy/
+
+# ---- 运行时状态 ----
+data/app.db*
+tools/tunnel/.serve_lock
+tools/tunnel/.tunnel_url
+tools/tunnel/.tunnel_secret
+tools/tunnel/.named_hostname
+
+# ---- 衍生索引（单文件超 GitHub 100MB 上限，克隆后由管线自动重建）----
+data/kb/chunks.jsonl
+data/kb/chunks.jsonl.tmp
+data/kb/index/embeddings.npy
+data/kb/index/embeddings.npy.tmp
+data/kb/index/bm25.pkl
+
+# ---- 超大媒体与二进制（可另行下载）----
+webui/assets/video/4K60Hz.mp4
+data/models/
+tools/tunnel/bin/
+
+# ---- 日志与临时文件 ----
+artifacts/
+*.log
+*.tmp
+.pytest_cache/
 __pycache__/
 *.pyc
-config.json
-data/
-artifacts/
-.workbuddy/
-tools/tunnel/bin/
-tools/tunnel/.tunnel_secret
-tools/tunnel/.tunnel_url
-webui/assets/video/*.mp4
-*.db
-*.db-shm
-*.db-wal
-.jwt_secret
+.venv/
 .DS_Store

@@ -88,6 +88,22 @@ CREATE TABLE IF NOT EXISTS update_jobs (
   log_path    TEXT NOT NULL DEFAULT '',
   created_at  INTEGER NOT NULL
 );
+
+CREATE TABLE IF NOT EXISTS feedback (
+  id             INTEGER PRIMARY KEY AUTOINCREMENT,
+  user_id        INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  kind           TEXT NOT NULL CHECK(kind IN ('answer','general')),
+  conv_id        TEXT,
+  answer_key     TEXT,
+  answer_snippet TEXT NOT NULL DEFAULT '',
+  rating         INTEGER CHECK(rating IS NULL OR rating IN (1,-1)),
+  content        TEXT NOT NULL DEFAULT '',
+  created_at     INTEGER NOT NULL
+);
+CREATE UNIQUE INDEX IF NOT EXISTS uq_feedback_answer
+  ON feedback(user_id, conv_id, answer_key) WHERE kind='answer';
+CREATE INDEX IF NOT EXISTS idx_feedback_kind_time ON feedback(kind, created_at);
+CREATE INDEX IF NOT EXISTS idx_feedback_time ON feedback(created_at);
 """
 
 _USERNAME_RE = re.compile(r"^[A-Za-z0-9_一-龥.-]{2,24}$")
@@ -152,15 +168,40 @@ class Database:
             return cur.lastrowid or cur.rowcount
 
     # ================= users =================
+    def _next_user_id(self, conn: sqlite3.Connection) -> int:
+        """最小未占用正整数 ID——保证用户编号连续、中间不留空缺。
+
+        显式分配 ID（不依赖 AUTOINCREMENT 计数器）：删除中间/尾部账号后，
+        新建用户优先补齐空缺，编号永不跳号。
+        """
+        ids = [r[0] for r in conn.execute(
+            "SELECT id FROM users WHERE id > 0 ORDER BY id")]
+        nxt = 1
+        for i in ids:
+            if i == nxt:
+                nxt += 1
+            elif i > nxt:
+                break
+        return nxt
+
     def user_create(self, username: str, password_hash: str, *,
                     display_name: str = "", role: str = "user",
                     must_change_pwd: int = 0) -> int:
         now = int(time.time())
-        return self.execute(
-            "INSERT INTO users(username,password_hash,display_name,role,"
-            "must_change_pwd,created_at) VALUES(?,?,?,?,?,?)",
-            (username, password_hash, display_name or username, role,
-             must_change_pwd, now))
+        with self._write_lock:                      # 计算+插入原子化，防并发撞号
+            conn = self._conn()
+            try:
+                nid = self._next_user_id(conn)
+                cur = conn.execute(
+                    "INSERT INTO users(id, username, password_hash, display_name,"
+                    " role, must_change_pwd, created_at) VALUES(?,?,?,?,?,?,?)",
+                    (nid, username, password_hash, display_name or username, role,
+                     must_change_pwd, now))
+                conn.commit()
+                return cur.lastrowid or nid
+            except Exception:
+                conn.rollback()
+                raise
 
     def user_by_name(self, username: str) -> dict | None:
         return self.query_one("SELECT * FROM users WHERE username=?", (username,))
@@ -329,6 +370,37 @@ class Database:
             " VALUES(?,?,?,?,?)",
             (cid, role, content, json.dumps(meta or {}, ensure_ascii=False),
              int(time.time())))
+
+    # ================= feedback =================
+    def feedback_create(self, user_id: int, kind: str, conv_id: str | None,
+                        answer_key: str | None, answer_snippet: str,
+                        rating: int | None, content: str) -> int:
+        return self.execute(
+            "INSERT INTO feedback(user_id,kind,conv_id,answer_key,answer_snippet,"
+            "rating,content,created_at) VALUES(?,?,?,?,?,?,?,?)",
+            (user_id, kind, conv_id, answer_key, answer_snippet,
+             rating, content, int(time.time())))
+
+    def feedback_rated_keys(self, user_id: int, conv_id: str) -> list[str]:
+        return [r["answer_key"] for r in self.query(
+            "SELECT answer_key FROM feedback WHERE user_id=? AND conv_id=?"
+            " AND kind='answer' AND answer_key IS NOT NULL",
+            (user_id, conv_id))]
+
+    def feedback_list(self, kind: str | None = None, ts_from: int | None = None,
+                      ts_to: int | None = None, limit: int = 200) -> list[dict]:
+        sql = ("SELECT f.id, f.kind, f.conv_id, f.answer_snippet, f.rating,"
+               " f.content, f.created_at, u.username"
+               " FROM feedback f JOIN users u ON u.id = f.user_id WHERE 1=1")
+        params: list = []
+        if kind:
+            sql += " AND f.kind=?"; params.append(kind)
+        if ts_from is not None:
+            sql += " AND f.created_at>=?"; params.append(ts_from)
+        if ts_to is not None:
+            sql += " AND f.created_at<=?"; params.append(ts_to)
+        sql += " ORDER BY f.created_at DESC LIMIT ?"; params.append(limit)
+        return self.query(sql, params)
 
     def msg_list(self, cid: str, limit: int = 300) -> list[dict]:
         rows = self.query(

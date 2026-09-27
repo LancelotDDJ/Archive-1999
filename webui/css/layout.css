@@ -111,7 +111,7 @@
   overflow: hidden; text-overflow: ellipsis; }
 .side-user .who .r { font-size: 10px; color: #b8b1a1; opacity: .75; letter-spacing: .1em; }
 .side-nav { display: flex; gap: 6px; margin-top: 10px; }
-.side-nav a, #settingsBtn, #logoutBtn, #adminNavItem, #introBtn {
+.side-nav a, #settingsBtn, #logoutBtn, #adminNavItem, #introBtn, #fbkBtn {
   display: block; width: 100%; box-sizing: border-box; text-align: center;
   margin-top: 6px; cursor: pointer; font-size: 12px;
   border: 1px solid var(--line); background: transparent; color: var(--muted);
@@ -120,10 +120,10 @@
   transition: color var(--dur-fast) var(--ease-out), border-color var(--dur-fast) var(--ease-out),
               transform 160ms var(--ease-out);
 }
-.side-nav a:hover, #settingsBtn:hover, #logoutBtn:hover, #adminNavItem:hover, #introBtn:hover {
+.side-nav a:hover, #settingsBtn:hover, #logoutBtn:hover, #adminNavItem:hover, #introBtn:hover, #fbkBtn:hover {
   color: var(--gold); border-color: var(--gold-dim); text-decoration: none;
 }
-.side-nav a:active, #settingsBtn:active, #logoutBtn:active, #adminNavItem:active, #introBtn:active { transform: scale(.97); }
+.side-nav a:active, #settingsBtn:active, #logoutBtn:active, #adminNavItem:active, #introBtn:active, #fbkBtn:active { transform: scale(.97); }
 
 /* ============ 主区 ============ */
 #main { flex: 1; display: flex; flex-direction: column; min-width: 0; position: relative; z-index: 1; }

@@ -1,0 +1,1 @@
+{"id":410609,"category":4,"groupId":106,"order":9,"name":"诗歌品鉴会","uiPlayerParam":"","isMask":0,"startTime":"","endTime":"","rule":0,"achievement_task":[{"id":41060901,"achievementId":410609,"desc":"观看冬的轶事。","extraDesc":"诗永远不会结束，除非连你都要离开。","listenerType":"HeroStoryFinish","listenerParam":"6","maxProgress":1,"sortId":1,"level":1,"icon":"41060901","image":""}]}

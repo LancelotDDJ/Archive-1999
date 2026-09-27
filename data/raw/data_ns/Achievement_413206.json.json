@@ -1,0 +1,1 @@
+{"id":413206,"category":4,"groupId":132,"order":4,"name":"最佳新人奖","uiPlayerParam":"","isMask":0,"startTime":"","endTime":"","rule":0,"achievement_task":[{"id":41320601,"achievementId":413206,"desc":"观看完银装小春雀儿全部轶事剧情","extraDesc":"年轻的鹰扎进了银色的世界。","listenerType":"HeroStoryPlotFinish","listenerParam":"0#315408","maxProgress":1,"sortId":1,"level":2,"icon":"41320601","image":""}]}
